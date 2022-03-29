@@ -5,3 +5,27 @@ controllers:
 kernel:
     resource: ../src/Kernel.php
     type: annotation
+
+api_index:
+  path: /api
+  controller: App\Controller\ApiController::index
+  methods: GET
+
+# PLAYERS
+
+api_get_players:
+  path: /api/players
+  controller: App\Controller\ApiController::getAllPlayers
+  methods: GET
+
+api_post_player:
+  path: /api/players
+  controller: App\Controller\ApiController::postPlayer
+  methods: POST
+
+# GAMES
+
+api_get_games:
+    path: /api/games
+    controller: App\Controller\ApiController::getAllGames
+    methods: GET
