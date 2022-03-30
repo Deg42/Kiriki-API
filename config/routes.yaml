@@ -1,10 +1,10 @@
 controllers:
-    resource: ../src/Controller/
-    type: annotation
+  resource: ../src/Controller/
+  type: annotation
 
 kernel:
-    resource: ../src/Kernel.php
-    type: annotation
+  resource: ../src/Kernel.php
+  type: annotation
 
 api_index:
   path: /api
@@ -41,6 +41,11 @@ api_delete_player:
 # GAMES
 
 api_get_games:
-    path: /api/games
-    controller: App\Controller\ApiController::getAllGames
-    methods: GET
+  path: /api/games
+  controller: App\Controller\GameController::getAllGames
+  methods: GET
+
+api_post_game:
+  path: /api/games
+  controller: App\Controller\GameController::postGame
+  methods: POST
