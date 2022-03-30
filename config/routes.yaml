@@ -15,22 +15,27 @@ api_index:
 
 api_get_players:
   path: /api/players
-  controller: App\Controller\ApiController::getAllPlayers
+  controller: App\Controller\PlayerController::getAllPlayers
+  methods: GET
+
+api_get_player:
+  path: /api/players/{id}
+  controller: App\Controller\PlayerController::getPlayer
   methods: GET
 
 api_post_player:
   path: /api/players
-  controller: App\Controller\ApiController::postPlayer
+  controller: App\Controller\PlayerController::postPlayer
   methods: POST
 
 api_put_player:
   path: /api/players/{id}
-  controller: App\Controller\ApiController::putPlayer
+  controller: App\Controller\PlayerController::putPlayer
   methods: PUT
 
 api_delete_player:
   path: /api/players/{id}
-  controller: App\Controller\ApiController::deletePlayer
+  controller: App\Controller\PlayerController::deletePlayer
   methods: DELETE
 
 # GAMES
