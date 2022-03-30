@@ -51,6 +51,39 @@ class GameController extends AbstractController
         return new JsonResponse($results, 200);
     }
 
+    function getGame(ManagerRegistry $doctrine, Request $request)
+    {
+        $id = $request->get('id');
+
+        $entityManager = $doctrine->getManager();
+        $game = $entityManager->getRepository(Game::class)->find($id);
+
+        if ($game == null) {
+            return new JsonResponse([
+                'error' => 'No game found for id ' . $id
+            ], 404);
+        }
+
+        $result = new \stdClass();
+        $result->id = $game->getId();
+        $result->name = $game->getName();
+        $result->host = $game->getHostId()->getUsername();
+        $result->winner = $game->getWinnerId();
+        $result->created_at = $game->getDate();
+        
+        $result->players = new \stdClass();
+        $result->players->count = count($game->getPlayers());
+        $result->players->results = array();
+
+        foreach ($game->getPlayers() as $player) {
+            $result->players->results[] = $this->generateUrl('api_get_players', [
+                'id' => $player->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+        
+        return new JsonResponse($result, 200);
+    }
+
     function postGame(ManagerRegistry $doctrine, Request $request)
     {
         $entityManager = $doctrine->getManager();

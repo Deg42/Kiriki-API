@@ -45,6 +45,11 @@ api_get_games:
   controller: App\Controller\GameController::getAllGames
   methods: GET
 
+api_get_game:
+  path: /api/games/{id}
+  controller: App\Controller\GameController::getGame
+  methods: GET
+
 api_post_game:
   path: /api/games
   controller: App\Controller\GameController::postGame
