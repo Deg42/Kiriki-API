@@ -90,8 +90,8 @@ class ApiController extends AbstractController
     {
         $entityManager = $doctrine->getManager();
 
-        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->request->get("username")]);
-        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->request->get("email")]);
+        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("username")]);
+        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->get("email")]);
 
         if ($playerByUser || $playerByEmail) {
             return new JsonResponse([
@@ -102,7 +102,7 @@ class ApiController extends AbstractController
         $player = new Player();
         $player->setUsername($request->get('username'));
         $player->setEmail($request->get('email'));
-        $player->setPassword(password_hash($request->request->get("password"), PASSWORD_DEFAULT));
+        $player->setPassword(password_hash($request->get("password"), PASSWORD_DEFAULT));
         $player->setRegistrationDate(new \DateTime());
 
         $entityManager->persist($player);
@@ -115,5 +115,64 @@ class ApiController extends AbstractController
         $result->created_at = $player->getRegistrationDate();
 
         return new JsonResponse($result, 201);
+    }
+
+    function putPlayer(ManagerRegistry $doctrine, Request $request)
+    {
+
+        $entityManager = $doctrine->getManager();
+        $player = $entityManager->getRepository(Player::class)->find($request->get('id'));
+ 
+        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("username")]);
+        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->get("email")]);
+
+        if ($player == null) {
+            return new JsonResponse([
+                'error' => 'Player not found'
+            ], 404);
+        }
+
+        if ($playerByUser || $playerByEmail) {
+            return new JsonResponse([
+                'error' => 'There is already a player with that email or username'
+            ], 409);
+        }
+
+        if (!password_verify($request->get("old_password"), $player->getPassword())) {
+            return new JsonResponse([
+                'error' => 'Wrong password'
+            ], 401);
+        }
+
+        $player->setUsername($request->get('username'));
+        $player->setEmail($request->get('email'));
+        $player->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
+
+        $entityManager->flush();
+
+        $result = new \stdClass();
+        $result->id = $player->getId();
+        $result->username = $player->getUsername();
+        $result->email = $player->getEmail();
+        $result->created_at = $player->getRegistrationDate();
+
+        return new JsonResponse($result, 200);
+    }
+
+    function deletePlayer(ManagerRegistry $doctrine, Request $request)
+    {
+        $entityManager = $doctrine->getManager();
+        $player = $entityManager->getRepository(Player::class)->find($request->get('id'));
+
+        if ($player == null) {
+            return new JsonResponse([
+                'error' => 'No player found for that id'
+            ], 404);
+        }
+
+        $entityManager->remove($player);
+        $entityManager->flush();
+
+        return new JsonResponse(null, 204);
     }
 }

@@ -23,6 +23,16 @@ api_post_player:
   controller: App\Controller\ApiController::postPlayer
   methods: POST
 
+api_put_player:
+  path: /api/players/{id}
+  controller: App\Controller\ApiController::putPlayer
+  methods: PUT
+
+api_delete_player:
+  path: /api/players/{id}
+  controller: App\Controller\ApiController::deletePlayer
+  methods: DELETE
+
 # GAMES
 
 api_get_games:
