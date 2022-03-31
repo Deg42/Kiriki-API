@@ -204,7 +204,7 @@ class PlayerController extends AbstractController
 
         if ($player == null) {
             return new JsonResponse([
-                'error' => 'No player found for the id ' . $id
+                'error' => 'No player found for id ' . $id
             ], 404);
         }
 

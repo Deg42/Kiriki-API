@@ -54,3 +54,9 @@ api_post_game:
   path: /api/games
   controller: App\Controller\GameController::postGame
   methods: POST
+
+
+api_delete_game:
+  path: /api/games/{id}
+  controller: App\Controller\GameController::deleteGame
+  methods: DELETE

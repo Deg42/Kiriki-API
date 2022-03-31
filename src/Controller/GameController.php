@@ -127,4 +127,23 @@ class GameController extends AbstractController
 
         return new JsonResponse($result, 201);
     }
+
+    function deleteGame(ManagerRegistry $doctrine, Request $request)
+    {
+        $id = $request->get('id');
+
+        $entityManager = $doctrine->getManager();
+        $game = $entityManager->getRepository(Game::class)->find($id);
+
+        if ($game == null) {
+            return new JsonResponse([
+                'error' => 'No game found for id ' . $id
+            ], 404);
+        }
+
+        $entityManager->remove($game);
+        $entityManager->flush();
+
+        return new JsonResponse(null, 204);
+    }
 }
