@@ -70,7 +70,7 @@ class GameController extends AbstractController
         $result->host = $game->getHostId()->getUsername();
         $result->winner = $game->getWinnerId();
         $result->created_at = $game->getDate();
-        
+
         $result->players = new \stdClass();
         $result->players->count = count($game->getPlayers());
         $result->players->results = array();
@@ -80,7 +80,7 @@ class GameController extends AbstractController
                 'id' => $player->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
-        
+
         return new JsonResponse($result, 200);
     }
 
@@ -126,6 +126,57 @@ class GameController extends AbstractController
         $result->created_at = $game->getDate();
 
         return new JsonResponse($result, 201);
+    }
+
+    function putGame(ManagerRegistry $doctrine, Request $request)
+    {
+        $entityManager = $doctrine->getManager();
+        $game = $entityManager->getRepository(Game::class)->find($request->get('id'));
+
+        $gameByName = $entityManager->getRepository(Game::class)->findOneBy(['name' => $request->get("new_name")]);
+
+        if ($game == null) {
+            return new JsonResponse([
+                'error' => 'Game not found'
+            ], 404);
+        }
+
+        if (!password_verify($request->get("old_password"), $game->getPassword())) {
+            return new JsonResponse([
+                'error' => 'Wrong password'
+            ], 401);
+        }
+
+        if ($gameByName) {
+            return new JsonResponse([
+                'error' => 'There is already a game with that name'
+            ], 409);
+        }
+
+        $game->setName($request->get('new_name'));
+        $game->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
+        $game->setWinnerId($entityManager->getRepository(Player::class)->find($request->get('winner_id')));
+
+        $entityManager->flush();
+
+        $result = new \stdClass();
+        $result->id = $game->getId();
+        $result->host = $game->getHostId()->getUsername();
+        $result->name = $game->getName();
+        $result->winner = $game->getWinnerId()->getUsername();
+        $result->created_at = $game->getDate();
+
+        $result->players = new \stdClass();
+        $result->players->count = count($game->getPlayers());
+        $result->players->results = array();
+
+        foreach ($game->getPlayers() as $player) {
+            $result->players->results[] = $this->generateUrl('api_get_players', [
+                'id' => $player->getId(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        return new JsonResponse($result, 200);
     }
 
     function deleteGame(ManagerRegistry $doctrine, Request $request)
