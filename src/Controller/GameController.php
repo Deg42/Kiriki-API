@@ -128,10 +128,11 @@ class GameController extends AbstractController
         return new JsonResponse($result, 201);
     }
 
-    function putGame(ManagerRegistry $doctrine, Request $request)
+    function patchGame(ManagerRegistry $doctrine, Request $request)
     {
         $entityManager = $doctrine->getManager();
         $game = $entityManager->getRepository(Game::class)->find($request->get('id'));
+        $host = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("host_username")]);
 
         $gameByName = $entityManager->getRepository(Game::class)->findOneBy(['name' => $request->get("new_name")]);
 
@@ -141,7 +142,7 @@ class GameController extends AbstractController
             ], 404);
         }
 
-        if (!password_verify($request->get("old_password"), $game->getPassword())) {
+        if (!password_verify($request->get("host_password"), $host->getPassword())) {
             return new JsonResponse([
                 'error' => 'Wrong password'
             ], 401);
@@ -153,9 +154,13 @@ class GameController extends AbstractController
             ], 409);
         }
 
-        $game->setName($request->get('new_name'));
-        $game->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
-        $game->setWinnerId($entityManager->getRepository(Player::class)->find($request->get('winner_id')));
+        if ($request->get("new_name") != null) {
+            $game->setName($request->get("new_name"));
+        }
+
+        if ($request->get("new_password") != null) {
+            $game->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
+        }
 
         $entityManager->flush();
 
@@ -163,7 +168,7 @@ class GameController extends AbstractController
         $result->id = $game->getId();
         $result->host = $game->getHostId()->getUsername();
         $result->name = $game->getName();
-        $result->winner = $game->getWinnerId()->getUsername();
+        $result->winner = $game->getWinnerId();
         $result->created_at = $game->getDate();
 
         $result->players = new \stdClass();

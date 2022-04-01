@@ -28,10 +28,10 @@ api_post_player:
   controller: App\Controller\PlayerController::postPlayer
   methods: POST
 
-api_put_player:
+api_patch_player:
   path: /api/players/{id}
-  controller: App\Controller\PlayerController::putPlayer
-  methods: PUT
+  controller: App\Controller\PlayerController::patchPlayer
+  methods: PATCH
 
 api_delete_player:
   path: /api/players/{id}
@@ -55,10 +55,10 @@ api_post_game:
   controller: App\Controller\GameController::postGame
   methods: POST
 
-api_put_game:
+api_patch_game:
   path: /api/games/{id}
-  controller: App\Controller\GameController::putGame
-  methods: PUT
+  controller: App\Controller\GameController::patchGame
+  methods: PATCH
 
 api_delete_game:
   path: /api/games/{id}

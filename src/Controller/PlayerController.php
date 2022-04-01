@@ -153,14 +153,14 @@ class PlayerController extends AbstractController
         return new JsonResponse($result, 201);
     }
 
-    function putPlayer(ManagerRegistry $doctrine, Request $request)
+    function patchPlayer(ManagerRegistry $doctrine, Request $request)
     {
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->find($request->get('id'));
  
-        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("username")]);
-        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->get("email")]);
+        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("new_username")]);
+        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->get("new_email")]);
 
         if ($player == null) {
             return new JsonResponse([
@@ -168,22 +168,37 @@ class PlayerController extends AbstractController
             ], 404);
         }
 
-        if ($playerByUser || $playerByEmail) {
-            return new JsonResponse([
-                'error' => 'There is already a player with that email or username'
-            ], 409);
-        }
-
-        if (!password_verify($request->get("old_password"), $player->getPassword())) {
+        if (!password_verify($request->get("password"), $player->getPassword())) {
             return new JsonResponse([
                 'error' => 'Wrong password'
             ], 401);
         }
 
-        $player->setUsername($request->get('username'));
-        $player->setEmail($request->get('email'));
-        $player->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
+        if ($playerByUser) {
+            return new JsonResponse([
+                'error' => 'There is already a player with that username'
+            ], 409);
+        }
 
+        if ($playerByEmail) {
+            return new JsonResponse([
+                'error' => 'There is already a player with that email'
+            ], 409);
+        }
+       
+        if ($request->get("new_username") != null) {
+            $player->setUsername($request->get("new_username"));
+        }
+
+        if ($request->get("new_email") != null) {
+            $player->setEmail($request->get("new_email"));
+        }
+
+        if ($request->get("new_password") != null) {
+            $player->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
+        }
+
+        $entityManager->persist($player);
         $entityManager->flush();
 
         $result = new \stdClass();
@@ -206,6 +221,12 @@ class PlayerController extends AbstractController
             return new JsonResponse([
                 'error' => 'No player found for id ' . $id
             ], 404);
+        }
+
+        if (!password_verify($request->get("password"), $player->getPassword())) {
+            return new JsonResponse([
+                'error' => 'Wrong password'
+            ], 401);
         }
 
         $entityManager->remove($player);
