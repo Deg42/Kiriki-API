@@ -197,11 +197,18 @@ class GameController extends AbstractController
 
         $entityManager = $doctrine->getManager();
         $game = $entityManager->getRepository(Game::class)->find($id);
+        $host = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("host_username")]);
 
         if ($game == null) {
             return new JsonResponse([
                 'error' => 'No game found for id ' . $id
             ], 404);
+        }
+
+        if (!password_verify($request->get("host_password"), $host->getPassword())) {
+            return new JsonResponse([
+                'error' => 'Wrong password'
+            ], 401);
         }
 
         $entityManager->remove($game);
