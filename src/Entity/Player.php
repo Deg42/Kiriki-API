@@ -27,20 +27,19 @@ class Player
     #[ORM\Column(type: 'date')]
     private $reg_date;
 
-    #[ORM\OneToMany(mappedBy: 'host_id', targetEntity: Game::class)]
+    #[ORM\OneToMany(mappedBy: 'host', targetEntity: Game::class)]
     private $hosted_games;
 
-    #[ORM\OneToMany(mappedBy: 'winner_id', targetEntity: Game::class)]
+    #[ORM\OneToMany(mappedBy: 'winner', targetEntity: Game::class)]
     private $won_games;
 
-    #[ORM\ManyToMany(targetEntity: Game::class, mappedBy: 'players')]
-    private $played_games;
+    #[ORM\OneToOne(mappedBy: 'player', targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
+    private $games;
 
     public function __construct()
     {
         $this->hosted_games = new ArrayCollection();
         $this->won_games = new ArrayCollection();
-        $this->played_games = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -84,12 +83,12 @@ class Player
         return $this;
     }
 
-    public function getRegistrationDate(): ?\DateTimeInterface
+    public function getRegDate(): ?\DateTimeInterface
     {
         return $this->reg_date;
     }
 
-    public function setRegistrationDate(\DateTimeInterface $reg_date): self
+    public function setRegDate(\DateTimeInterface $reg_date): self
     {
         $this->reg_date = $reg_date;
 
@@ -104,22 +103,22 @@ class Player
         return $this->hosted_games;
     }
 
-    public function addHostedGame(Game $hosted_game): self
+    public function addHostedGame(Game $hostedGame): self
     {
-        if (!$this->hosted_games->contains($hosted_game)) {
-            $this->hosted_games[] = $hosted_game;
-            $hosted_game->setHostId($this);
+        if (!$this->hosted_games->contains($hostedGame)) {
+            $this->hosted_games[] = $hostedGame;
+            $hostedGame->setHost($this);
         }
 
         return $this;
     }
 
-    public function removeHostedGame(Game $hosted_game): self
+    public function removeHostedGame(Game $hostedGame): self
     {
-        if ($this->hosted_games->removeElement($hosted_game)) {
+        if ($this->hosted_games->removeElement($hostedGame)) {
             // set the owning side to null (unless already changed)
-            if ($hosted_game->getHostId() === $this) {
-                $hosted_game->setHostId(null);
+            if ($hostedGame->getHost() === $this) {
+                $hostedGame->setHost(null);
             }
         }
 
@@ -134,51 +133,41 @@ class Player
         return $this->won_games;
     }
 
-    public function addWonGame(Game $won_game): self
+    public function addWonGame(Game $wonGame): self
     {
-        if (!$this->won_games->contains($won_game)) {
-            $this->won_games[] = $won_game;
-            $won_game->setWinnerId($this);
+        if (!$this->won_games->contains($wonGame)) {
+            $this->won_games[] = $wonGame;
+            $wonGame->setWinner($this);
         }
 
         return $this;
     }
 
-    public function removeWonGame(Game $won_game): self
+    public function removeWonGame(Game $wonGame): self
     {
-        if ($this->won_games->removeElement($won_game)) {
+        if ($this->won_games->removeElement($wonGame)) {
             // set the owning side to null (unless already changed)
-            if ($won_game->getWinnerId() === $this) {
-                $won_game->setWinnerId(null);
+            if ($wonGame->getWinner() === $this) {
+                $wonGame->setWinner(null);
             }
         }
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Game>
-     */
-    public function getPlayedGames(): Collection
+    public function getGames(): ?PlayerGame
     {
-        return $this->played_games;
+        return $this->games;
     }
 
-    public function addPlayedGame(Game $playedGame): self
+    public function setGames(PlayerGame $games): self
     {
-        if (!$this->played_games->contains($playedGame)) {
-            $this->played_games[] = $playedGame;
-            $playedGame->addPlayer($this);
+        // set the owning side of the relation if necessary
+        if ($games->getPlayer() !== $this) {
+            $games->setPlayer($this);
         }
 
-        return $this;
-    }
-
-    public function removePlayedGame(Game $playedGame): self
-    {
-        if ($this->played_games->removeElement($playedGame)) {
-            $playedGame->removePlayer($this);
-        }
+        $this->games = $games;
 
         return $this;
     }

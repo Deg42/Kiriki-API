@@ -31,10 +31,10 @@ class PlayerController extends AbstractController
             $result->id = $player->getId();
             $result->username = $player->getUsername();
             $result->email = $player->getEmail();
-            $result->created_at = $player->getRegistrationDate();
+            $result->created_at = $player->getRegDate();
 
             $result->games_played = new \stdClass();
-            $result->games_played->count = count($player->getPlayedGames());
+            $result->games_played->count = count($player->getGames() ?? []);
             $result->games_played->results = array();
 
             $result->games_hosted = new \stdClass();
@@ -45,10 +45,12 @@ class PlayerController extends AbstractController
             $result->games_won->count = count($player->getWonGames());
             $result->games_won->results = array();
 
-            foreach ($player->getPlayedGames() as $played_game) {
-                $result->games_played->results[] = $this->generateUrl('api_get_games', [
-                    'id' => $played_game->getId(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
+            if ($player->getGames()) {
+                foreach ($player->getGames() as $played_game) {
+                    $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
+                        'id' => $played_game->getId(),
+                    ], UrlGeneratorInterface::ABSOLUTE_URL);
+                }
             }
 
             foreach ($player->getHostedGames() as $hosted_game) {
@@ -69,7 +71,8 @@ class PlayerController extends AbstractController
         return new JsonResponse($results, 200);
     }
 
-    function getPlayer(ManagerRegistry $doctrine, Request $request){ 
+    function getPlayer(ManagerRegistry $doctrine, Request $request)
+    {
 
         $id = $request->get('id');
 
@@ -86,10 +89,10 @@ class PlayerController extends AbstractController
         $result->id = $player->getId();
         $result->username = $player->getUsername();
         $result->email = $player->getEmail();
-        $result->created_at = $player->getRegistrationDate();
+        $result->created_at = $player->getRegDate();
 
         $result->games_played = new \stdClass();
-        $result->games_played->count = count($player->getPlayedGames());
+        $result->games_played->count = count($player->getGames() ?? []);
         $result->games_played->results = array();
 
         $result->games_hosted = new \stdClass();
@@ -100,12 +103,14 @@ class PlayerController extends AbstractController
         $result->games_won->count = count($player->getWonGames());
         $result->games_won->results = array();
 
-        foreach ($player->getPlayedGames() as $played_game) {
-            $result->games_played->results[] = $this->generateUrl('api_get_games', [
-                'id' => $played_game->getId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        if ($player->getGames()) {
+            foreach ($player->getGames() as $played_game) {
+                $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
+                    'id' => $played_game->getId(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL);
+            }
         }
-
+        
         foreach ($player->getHostedGames() as $hosted_game) {
             $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
                 'id' => $hosted_game->getId(),
@@ -119,7 +124,6 @@ class PlayerController extends AbstractController
         }
 
         return new JsonResponse($result, 200);
-
     }
 
     function postPlayer(ManagerRegistry $doctrine, Request $request)
@@ -139,7 +143,7 @@ class PlayerController extends AbstractController
         $player->setUsername($request->get('username'));
         $player->setEmail($request->get('email'));
         $player->setPassword(password_hash($request->get("password"), PASSWORD_DEFAULT));
-        $player->setRegistrationDate(new \DateTime());
+        $player->setRegDate(new \DateTime());
 
         $entityManager->persist($player);
         $entityManager->flush();
@@ -148,7 +152,7 @@ class PlayerController extends AbstractController
         $result->id = $player->getId();
         $result->username = $player->getUsername();
         $result->email = $player->getEmail();
-        $result->created_at = $player->getRegistrationDate();
+        $result->created_at = $player->getRegDate();
 
         return new JsonResponse($result, 201);
     }
@@ -158,7 +162,7 @@ class PlayerController extends AbstractController
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->find($request->get('id'));
- 
+
         $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("new_username")]);
         $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->get("new_email")]);
 
@@ -185,7 +189,7 @@ class PlayerController extends AbstractController
                 'error' => 'There is already a player with that email'
             ], 409);
         }
-       
+
         if ($request->get("new_username") != null) {
             $player->setUsername($request->get("new_username"));
         }
@@ -205,7 +209,7 @@ class PlayerController extends AbstractController
         $result->id = $player->getId();
         $result->username = $player->getUsername();
         $result->email = $player->getEmail();
-        $result->created_at = $player->getRegistrationDate();
+        $result->created_at = $player->getRegDate();
 
         return new JsonResponse($result, 200);
     }

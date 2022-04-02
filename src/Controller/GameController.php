@@ -30,20 +30,23 @@ class GameController extends AbstractController
         foreach ($games as $game) {
             $result = new \stdClass();
             $result->id = $game->getId();
-            $result->host = $game->getHostId()->getUsername();
-            $result->winner = $game->getWinnerId();
+            $result->host = $game->getHost()->getUsername();
+            $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
             $result->name = $game->getName();
             $result->created_at = $game->getDate();
 
             $result->players = new \stdClass();
-            $result->players->count = count($game->getPlayers());
+            $result->players->count = count($game->getPlayers() ?? []);
             $result->players->results = array();
 
-            foreach ($game->getPlayers() as $player) {
-                $result->players->results[] = $this->generateUrl('api_get_players', [
-                    'id' => $player->getId(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL);
+            if ($game->getPlayers()) {
+                foreach ($game->getPlayers() as $player) {
+                    $result->players->results[] = $this->generateUrl('api_get_players', [
+                        'id' => $player->getId(),
+                    ], UrlGeneratorInterface::ABSOLUTE_URL);
+                }
             }
+
 
             array_push($results->results, $result);
         }
@@ -67,18 +70,20 @@ class GameController extends AbstractController
         $result = new \stdClass();
         $result->id = $game->getId();
         $result->name = $game->getName();
-        $result->host = $game->getHostId()->getUsername();
-        $result->winner = $game->getWinnerId();
+        $result->host = $game->getHost()->getUsername();
+        $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
         $result->created_at = $game->getDate();
 
         $result->players = new \stdClass();
-        $result->players->count = count($game->getPlayers());
+        $result->players->count = count($game->getPlayers() ?? []);
         $result->players->results = array();
 
-        foreach ($game->getPlayers() as $player) {
-            $result->players->results[] = $this->generateUrl('api_get_players', [
-                'id' => $player->getId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        if ($game->getPlayers()) {
+            foreach ($game->getPlayers() as $player) {
+                $result->players->results[] = $this->generateUrl('api_get_players', [
+                    'id' => $player->getId(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL);
+            }
         }
 
         return new JsonResponse($result, 200);
@@ -114,14 +119,14 @@ class GameController extends AbstractController
         $game->setName($request->get('name'));
         $game->setPassword(password_hash($request->get("password"), PASSWORD_DEFAULT));
         $game->setDate(new \DateTime());
-        $game->setHostId($host);
+        $game->setHost($host);
 
         $entityManager->persist($game);
         $entityManager->flush();
 
         $result = new \stdClass();
         $result->id = $game->getId();
-        $result->host = $game->getHostId()->getUsername();
+        $result->host = $game->getHost()->getUsername();
         $result->name = $game->getName();
         $result->created_at = $game->getDate();
 
@@ -166,19 +171,21 @@ class GameController extends AbstractController
 
         $result = new \stdClass();
         $result->id = $game->getId();
-        $result->host = $game->getHostId()->getUsername();
+        $result->host = $game->getHost()->getUsername();
         $result->name = $game->getName();
-        $result->winner = $game->getWinnerId();
+        $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
         $result->created_at = $game->getDate();
 
         $result->players = new \stdClass();
-        $result->players->count = count($game->getPlayers());
+        $result->players->count = count($game->getPlayers() ?? []);
         $result->players->results = array();
 
-        foreach ($game->getPlayers() as $player) {
-            $result->players->results[] = $this->generateUrl('api_get_players', [
-                'id' => $player->getId(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        if ($game->getPlayers()) {
+            foreach ($game->getPlayers() as $player) {
+                $result->players->results[] = $this->generateUrl('api_get_players', [
+                    'id' => $player->getId(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL);
+            }
         }
 
         return new JsonResponse($result, 200);

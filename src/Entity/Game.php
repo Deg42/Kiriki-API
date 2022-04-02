@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\GameRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
@@ -15,13 +13,6 @@ class Game
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'hostedGames')]
-    #[ORM\JoinColumn(nullable: false)]
-    private $host_id;
-
-    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'wonGames')]
-    private $winner_id;
-
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
@@ -31,41 +22,19 @@ class Game
     #[ORM\Column(type: 'date')]
     private $date;
 
-    #[ORM\ManyToMany(targetEntity: Player::class, inversedBy: 'played_games')]
-    private $players;
+    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'hosted_games')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $host;
 
-    public function __construct()
-    {
-        $this->players = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'won_games')]
+    private $winner;
+
+    #[ORM\OneToOne(mappedBy: 'game', targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
+    private $players;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getHostId(): ?Player
-    {
-        return $this->host_id;
-    }
-
-    public function setHostId(?Player $host_id): self
-    {
-        $this->host_id = $host_id;
-
-        return $this;
-    }
-
-    public function getWinnerId(): ?Player
-    {
-        return $this->winner_id;
-    }
-
-    public function setWinnerId(?Player $winner_id): self
-    {
-        $this->winner_id = $winner_id;
-
-        return $this;
     }
 
     public function getName(): ?string
@@ -104,26 +73,43 @@ class Game
         return $this;
     }
 
-    /**
-     * @return Collection<int, Player>
-     */
-    public function getPlayers(): Collection
+    public function getHost(): ?Player
     {
-        return $this->players;
+        return $this->host;
     }
 
-    public function addPlayer(Player $player): self
+    public function setHost(?Player $host): self
     {
-        if (!$this->players->contains($player)) {
-            $this->players[] = $player;
-        }
+        $this->host = $host;
 
         return $this;
     }
 
-    public function removePlayer(Player $player): self
+    public function getWinner(): ?Player
     {
-        $this->players->removeElement($player);
+        return $this->winner;
+    }
+
+    public function setWinner(?Player $winner): self
+    {
+        $this->winner = $winner;
+
+        return $this;
+    }
+
+    public function getPlayers(): ?PlayerGame
+    {
+        return $this->players;
+    }
+
+    public function setPlayers(PlayerGame $players): self
+    {
+        // set the owning side of the relation if necessary
+        if ($players->getGame() !== $this) {
+            $players->setGame($this);
+        }
+
+        $this->players = $players;
 
         return $this;
     }
