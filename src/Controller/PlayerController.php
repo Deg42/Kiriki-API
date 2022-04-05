@@ -9,63 +9,62 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Player;
 
+
 class PlayerController extends AbstractController
 {
-    function getAllPlayers(ManagerRegistry $doctrine)
+    function getAllPlayers(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
         $entityManager = $doctrine->getManager();
         $players = $entityManager->getRepository(Player::class)->findAll();
-
-        if ($players == null) {
-            return new JsonResponse([
-                'error' => 'No players found'
-            ], 404);
-        }
 
         $results  = new \stdClass();
         $results->count = count($players);
         $results->results = array();
 
         foreach ($players as $player) {
-            $result = new \stdClass();
-            $result->id = $player->getId();
-            $result->username = $player->getUsername();
-            $result->email = $player->getEmail();
-            $result->created_at = $player->getRegDate();
+            $subresult = new \stdClass();
+            $subresult->id = $player->getId();
+            $subresult->username = $player->getUsername();
+            $subresult->email = $player->getEmail();
+            $subresult->created_at = $player->getRegDate();
 
-            $result->games_played = new \stdClass();
-            $result->games_played->count = count($player->getGames() ?? []);
-            $result->games_played->results = array();
+            $subresult->games_played = new \stdClass();
+            $subresult->games_played->count = count($player->getGames() ?? []);
+            $subresult->games_played->results = array();
 
-            $result->games_hosted = new \stdClass();
-            $result->games_hosted->count = count($player->getHostedGames());
-            $result->games_hosted->results = array();
+            $subresult->games_hosted = new \stdClass();
+            $subresult->games_hosted->count = count($player->getHostedGames());
+            $subresult->games_hosted->results = array();
 
-            $result->games_won = new \stdClass();
-            $result->games_won->count = count($player->getWonGames());
-            $result->games_won->results = array();
+            $subresult->games_won = new \stdClass();
+            $subresult->games_won->count = count($player->getWonGames());
+            $subresult->games_won->results = array();
 
             if ($player->getGames()) {
                 foreach ($player->getGames() as $played_game) {
-                    $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
+                    $subresult->games_played->results[] = $this->generateUrl('api_get_games', [
                         'id' => $played_game->getId(),
                     ], UrlGeneratorInterface::ABSOLUTE_URL);
                 }
             }
 
             foreach ($player->getHostedGames() as $hosted_game) {
-                $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
+                $subresult->games_hosted->results[] = $this->generateUrl('api_get_games', [
                     'id' => $hosted_game->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
             }
 
             foreach ($player->getWonGames() as $won_game) {
-                $result->games_won->results[] = $this->generateUrl('api_get_games', [
+                $subresult->games_won->results[] = $this->generateUrl('api_get_games', [
                     'id' => $won_game->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
             }
 
-            array_push($results->results, $result);
+            array_push($results->results, $subresult);
         }
 
         return new JsonResponse($results, 200);
@@ -73,16 +72,17 @@ class PlayerController extends AbstractController
 
     function getPlayer(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
 
         $id = $request->get('id');
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->find($id);
 
-        if ($player == null) {
-            return new JsonResponse([
-                'error' => 'No player found for id ' . $id
-            ], 404);
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found for id ' . $id], 404);
         }
 
         $result = new \stdClass();
@@ -105,12 +105,12 @@ class PlayerController extends AbstractController
 
         if ($player->getGames()) {
             foreach ($player->getGames() as $played_game) {
-                $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
+                $result->games_played->results[] = $this->generateUrl('api_get_games', [
                     'id' => $played_game->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
             }
         }
-        
+
         foreach ($player->getHostedGames() as $hosted_game) {
             $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
                 'id' => $hosted_game->getId(),
@@ -128,21 +128,34 @@ class PlayerController extends AbstractController
 
     function postPlayer(ManagerRegistry $doctrine, Request $request)
     {
+        if (is_null($request->get('token')) || $request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
+        $username = $request->get("username");
+        $email = $request->get("email");
+        $password = $request->get("password");
+
         $entityManager = $doctrine->getManager();
 
-        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("username")]);
-        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->get("email")]);
+        if (is_null($username) || is_null($email) || is_null($password)) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
 
-        if ($playerByUser || $playerByEmail) {
-            return new JsonResponse([
-                'error' => 'There is already a player with that email or username'
-            ], 409);
+        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $username]);
+        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $email]);
+
+        if ($playerByUser) {
+            return new JsonResponse(['error' => 'Username already exists'], 400);
+        }
+        if ($playerByEmail) {
+            return new JsonResponse(['error' => 'Email already exists'], 400);
         }
 
         $player = new Player();
-        $player->setUsername($request->get('username'));
-        $player->setEmail($request->get('email'));
-        $player->setPassword(password_hash($request->get("password"), PASSWORD_DEFAULT));
+        $player->setUsername($username);
+        $player->setEmail($email);
+        $player->setPassword(password_hash($password, PASSWORD_DEFAULT));
         $player->setRegDate(new \DateTime());
 
         $entityManager->persist($player);
@@ -159,47 +172,43 @@ class PlayerController extends AbstractController
 
     function patchPlayer(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
+        $id = $request->get('id');
+        $newUsername = $request->get("new_username");
+        $newEmail =  $request->get("new_email");
+        $newPassword = $request->get("new_password");
 
         $entityManager = $doctrine->getManager();
-        $player = $entityManager->getRepository(Player::class)->find($request->get('id'));
+        $player = $entityManager->getRepository(Player::class)->find($id);
 
-        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("new_username")]);
-        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $request->get("new_email")]);
+        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $newUsername]);
+        $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $newEmail]);
 
-        if ($player == null) {
-            return new JsonResponse([
-                'error' => 'Player not found'
-            ], 404);
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found for id ' . $id], 404);
         }
-
-        if (!password_verify($request->get("password"), $player->getPassword())) {
-            return new JsonResponse([
-                'error' => 'Wrong password'
-            ], 401);
-        }
-
         if ($playerByUser) {
-            return new JsonResponse([
-                'error' => 'There is already a player with that username'
-            ], 409);
+            return new JsonResponse(['error' => 'There is already a player with that username'], 409);
         }
-
         if ($playerByEmail) {
-            return new JsonResponse([
-                'error' => 'There is already a player with that email'
-            ], 409);
+            return new JsonResponse(['error' => 'There is already a player with that email'], 409);
+        }
+        if (is_null($newUsername) && is_null($newEmail) && is_null($newPassword)) {
+            return new JsonResponse(['error' => 'No data to update'], 400);
         }
 
-        if ($request->get("new_username") != null) {
-            $player->setUsername($request->get("new_username"));
+        if ($newUsername) {
+            $player->setUsername($newUsername);
+        }
+        if ($newEmail) {
+            $player->setEmail($request->get($newEmail));
         }
 
-        if ($request->get("new_email") != null) {
-            $player->setEmail($request->get("new_email"));
-        }
-
-        if ($request->get("new_password") != null) {
-            $player->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
+        if ($newPassword) {
+            $player->setPassword(password_hash($newPassword, PASSWORD_DEFAULT));
         }
 
         $entityManager->persist($player);
@@ -216,21 +225,17 @@ class PlayerController extends AbstractController
 
     function deletePlayer(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
         $id = $request->get('id');
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->find($id);
 
-        if ($player == null) {
-            return new JsonResponse([
-                'error' => 'No player found for id ' . $id
-            ], 404);
-        }
-
-        if (!password_verify($request->get("password"), $player->getPassword())) {
-            return new JsonResponse([
-                'error' => 'Wrong password'
-            ], 401);
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found for id ' . $id], 404);
         }
 
         $entityManager->remove($player);

@@ -13,54 +13,56 @@ api_index:
 
 # PLAYERS
 
+# --- Admin routes ---
+
 api_get_players:
-  path: /api/players
+  path: /admin/players
   controller: App\Controller\PlayerController::getAllPlayers
   methods: GET
 
 api_get_player:
-  path: /api/players/{id}
+  path: /admin/players/{id}
   controller: App\Controller\PlayerController::getPlayer
   methods: GET
 
 api_post_player:
-  path: /api/players
+  path: /admin/players
   controller: App\Controller\PlayerController::postPlayer
   methods: POST
 
 api_patch_player:
-  path: /api/players/{id}
+  path: /admin/players/{id}
   controller: App\Controller\PlayerController::patchPlayer
   methods: PATCH
 
 api_delete_player:
-  path: /api/players/{id}
+  path: /admin/players/{id}
   controller: App\Controller\PlayerController::deletePlayer
   methods: DELETE
 
 # GAMES
 
 api_get_games:
-  path: /api/games
+  path: /admin/games
   controller: App\Controller\GameController::getAllGames
   methods: GET
 
 api_get_game:
-  path: /api/games/{id}
+  path: /admin/games/{id}
   controller: App\Controller\GameController::getGame
   methods: GET
 
 api_post_game:
-  path: /api/games
+  path: /admin/games
   controller: App\Controller\GameController::postGame
   methods: POST
 
 api_patch_game:
-  path: /api/games/{id}
+  path: /admin/games/{id}
   controller: App\Controller\GameController::patchGame
   methods: PATCH
 
 api_delete_game:
-  path: /api/games/{id}
+  path: /admin/games/{id}
   controller: App\Controller\GameController::deleteGame
   methods: DELETE

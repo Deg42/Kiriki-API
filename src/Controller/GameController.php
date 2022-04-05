@@ -12,16 +12,14 @@ use App\Entity\Player;
 
 class GameController extends AbstractController
 {
-    function getAllGames(ManagerRegistry $doctrine)
+    function getAllGames(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
         $entityManager = $doctrine->getManager();
         $games = $entityManager->getRepository(Game::class)->findAll();
-
-        if ($games == null) {
-            return new JsonResponse([
-                'error' => 'No games found'
-            ], 404);
-        }
 
         $results  = new \stdClass();
         $results->count = count($games);
@@ -56,12 +54,16 @@ class GameController extends AbstractController
 
     function getGame(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
         $id = $request->get('id');
 
         $entityManager = $doctrine->getManager();
         $game = $entityManager->getRepository(Game::class)->find($id);
 
-        if ($game == null) {
+        if (is_null($game)) {
             return new JsonResponse([
                 'error' => 'No game found for id ' . $id
             ], 404);
@@ -91,33 +93,31 @@ class GameController extends AbstractController
 
     function postGame(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
+        $name = $request->get("name");
+        $password = $request->get("password");
+        $hostId = $request->get("host_id");
+
         $entityManager = $doctrine->getManager();
 
-        $gameByName = $entityManager->getRepository(Game::class)->findOneBy(['name' => $request->get("name")]);
+        $gameByName = $entityManager->getRepository(Game::class)->findOneBy(['name' => $name]);
 
-        $host = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("host_username")]);
+        $host = $entityManager->getRepository(Player::class)->find($hostId);
 
         if ($gameByName) {
-            return new JsonResponse([
-                'error' => 'There is already a game with that name'
-            ], 409);
+            return new JsonResponse(['error' => 'There is already a game with that name'], 409);
         }
 
-        if ($host == null) {
-            return new JsonResponse([
-                'error' => 'There is no player with the username ' . $request->get("host_username")
-            ], 404);
-        }
-
-        if (!password_verify($request->get("host_password"), $host->getPassword())) {
-            return new JsonResponse([
-                'error' => 'Wrong password'
-            ], 401);
+        if (is_null($host)) {
+            return new JsonResponse(['error' => 'There is no host with the id ' . $hostId], 404);
         }
 
         $game = new Game();
-        $game->setName($request->get('name'));
-        $game->setPassword(password_hash($request->get("password"), PASSWORD_DEFAULT));
+        $game->setName($name);
+        $game->setPassword(password_hash($password, PASSWORD_DEFAULT));
         $game->setDate(new \DateTime());
         $game->setHost($host);
 
@@ -126,7 +126,9 @@ class GameController extends AbstractController
 
         $result = new \stdClass();
         $result->id = $game->getId();
-        $result->host = $game->getHost()->getUsername();
+        $result->host = $this->generateUrl('api_get_players', [
+            'id' => $host->getId(),
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
         $result->name = $game->getName();
         $result->created_at = $game->getDate();
 
@@ -135,45 +137,49 @@ class GameController extends AbstractController
 
     function patchGame(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
+        $id = $request->get('id');
+        $newName = $request->get("new_name");
+        $newPassword = $request->get("new_password");
+
         $entityManager = $doctrine->getManager();
-        $game = $entityManager->getRepository(Game::class)->find($request->get('id'));
-        $host = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("host_username")]);
+        $game = $entityManager->getRepository(Game::class)->find($id);
 
-        $gameByName = $entityManager->getRepository(Game::class)->findOneBy(['name' => $request->get("new_name")]);
+        $gameByName = $entityManager->getRepository(Game::class)->findOneBy(['name' => $newName]);
 
-        if ($game == null) {
-            return new JsonResponse([
-                'error' => 'Game not found'
-            ], 404);
+        if (is_null($game)) {
+            return new JsonResponse(['error' => 'Game not found for id ' . $id], 404);
         }
-
-        if (!password_verify($request->get("host_password"), $host->getPassword())) {
-            return new JsonResponse([
-                'error' => 'Wrong password'
-            ], 401);
-        }
-
         if ($gameByName) {
-            return new JsonResponse([
-                'error' => 'There is already a game with that name'
-            ], 409);
+            return new JsonResponse(['error' => 'There is already a game with that name'], 409);
+        }
+        if (is_null($newName) && is_null($newPassword)) {
+            return new JsonResponse(['error' => 'No data to update'], 400);
         }
 
-        if ($request->get("new_name") != null) {
-            $game->setName($request->get("new_name"));
+        if ($newName) {
+            $game->setName($newName);
+        }
+        if ($newPassword) {
+            $game->setPassword(password_hash($newPassword, PASSWORD_DEFAULT));
         }
 
-        if ($request->get("new_password") != null) {
-            $game->setPassword(password_hash($request->get("new_password"), PASSWORD_DEFAULT));
-        }
-
+        $entityManager->persist($game);
         $entityManager->flush();
 
         $result = new \stdClass();
         $result->id = $game->getId();
-        $result->host = $game->getHost()->getUsername();
+        $result->host = $this->generateUrl('api_get_players', [
+            'id' => $game->getHost()->getId()
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
         $result->name = $game->getName();
-        $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
+        $result->winner =
+            $game->getWinner()
+            ? $this->generateUrl('api_get_players', ['id' => $game->getWinner()->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+            : null;
         $result->created_at = $game->getDate();
 
         $result->players = new \stdClass();
@@ -193,22 +199,17 @@ class GameController extends AbstractController
 
     function deleteGame(ManagerRegistry $doctrine, Request $request)
     {
+        if ($request->get('token') != $this->getParameter('app.API_KEY')) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
         $id = $request->get('id');
 
         $entityManager = $doctrine->getManager();
         $game = $entityManager->getRepository(Game::class)->find($id);
-        $host = $entityManager->getRepository(Player::class)->findOneBy(['username' => $request->get("host_username")]);
 
-        if ($game == null) {
-            return new JsonResponse([
-                'error' => 'No game found for id ' . $id
-            ], 404);
-        }
-
-        if (!password_verify($request->get("host_password"), $host->getPassword())) {
-            return new JsonResponse([
-                'error' => 'Wrong password'
-            ], 401);
+        if (is_null($game)) {
+            return new JsonResponse(['error' => 'No game found for id ' . $id], 404);
         }
 
         $entityManager->remove($game);
