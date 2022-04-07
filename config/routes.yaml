@@ -7,7 +7,7 @@ kernel:
   type: annotation
 
 api_index:
-  path: /api
+  path: /
   controller: App\Controller\ApiController::index
   methods: GET
 
@@ -67,3 +67,8 @@ api_delete_game:
   path: /admin/games/{id}
   controller: App\Controller\GameController::deleteGame
   methods: DELETE
+
+# -----
+
+api_login_check:
+    path: /api/login_check
