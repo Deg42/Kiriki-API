@@ -11,9 +11,10 @@ api_index:
   controller: App\Controller\ApiController::index
   methods: GET
 
-# PLAYERS
 
 # --- Admin routes ---
+
+# PLAYERS
 
 api_get_players:
   path: /admin/players

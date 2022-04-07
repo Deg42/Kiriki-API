@@ -6,17 +6,21 @@ use App\Repository\PlayerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: PlayerRepository::class)]
-class Player
+class Player implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private $username;
+
+    #[ORM\Column(type: 'json')]
+    private $roles = [];
 
     #[ORM\Column(type: 'string', length: 255)]
     private $email;
@@ -24,22 +28,22 @@ class Player
     #[ORM\Column(type: 'string', length: 255)]
     private $password;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'datetime')]
     private $reg_date;
 
     #[ORM\OneToMany(mappedBy: 'host', targetEntity: Game::class)]
     private $hosted_games;
 
     #[ORM\OneToMany(mappedBy: 'winner', targetEntity: Game::class)]
-    private $won_games;
+    private $games_won;
 
-    #[ORM\OneToOne(mappedBy: 'player', targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
     private $games;
 
     public function __construct()
     {
         $this->hosted_games = new ArrayCollection();
-        $this->won_games = new ArrayCollection();
+        $this->games_won = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -57,6 +61,44 @@ class Player
         $this->username = $username;
 
         return $this;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
     public function getEmail(): ?string
@@ -128,27 +170,27 @@ class Player
     /**
      * @return Collection<int, Game>
      */
-    public function getWonGames(): Collection
+    public function getGamesWon(): Collection
     {
-        return $this->won_games;
+        return $this->games_won;
     }
 
-    public function addWonGame(Game $wonGame): self
+    public function addGamesWon(Game $gamesWon): self
     {
-        if (!$this->won_games->contains($wonGame)) {
-            $this->won_games[] = $wonGame;
-            $wonGame->setWinner($this);
+        if (!$this->games_won->contains($gamesWon)) {
+            $this->games_won[] = $gamesWon;
+            $gamesWon->setWinner($this);
         }
 
         return $this;
     }
 
-    public function removeWonGame(Game $wonGame): self
+    public function removeGamesWon(Game $gamesWon): self
     {
-        if ($this->won_games->removeElement($wonGame)) {
+        if ($this->games_won->removeElement($gamesWon)) {
             // set the owning side to null (unless already changed)
-            if ($wonGame->getWinner() === $this) {
-                $wonGame->setWinner(null);
+            if ($gamesWon->getWinner() === $this) {
+                $gamesWon->setWinner(null);
             }
         }
 

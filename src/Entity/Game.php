@@ -26,10 +26,10 @@ class Game
     #[ORM\JoinColumn(nullable: false)]
     private $host;
 
-    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'won_games')]
+    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'games_won')]
     private $winner;
 
-    #[ORM\OneToOne(mappedBy: 'game', targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
     private $players;
 
     public function getId(): ?int
@@ -112,5 +112,5 @@ class Game
         $this->players = $players;
 
         return $this;
-    }
+    }    
 }
