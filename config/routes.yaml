@@ -72,3 +72,22 @@ api_delete_game:
   path: /admin/games/{id}
   controller: App\Controller\GameController::deleteGame
   methods: DELETE
+
+# --- Front routes ---
+
+# PLAYERS
+
+register_player:
+  path: /api/register
+  controller: App\Controller\FrontController::registerPlayer
+  methods: POST
+
+update_player:
+  path: /api/player_settings
+  controller: App\Controller\FrontController::updatePlayer
+  methods: PATCH
+
+delete_player_account:
+  path: /api/delete_account
+  controller: App\Controller\FrontController::deletePlayerAccount
+  methods: DELETE
