@@ -26,6 +26,11 @@ api_get_player:
   controller: App\Controller\PlayerController::getPlayer
   methods: GET
 
+api_get_player_games:
+  path: /admin/players/{id}/games
+  controller: App\Controller\PlayerController::getPlayerGames
+  methods: GET
+
 api_post_player:
   path: /admin/players
   controller: App\Controller\PlayerController::postPlayer
