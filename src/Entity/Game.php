@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\GameRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
@@ -19,7 +21,7 @@ class Game
     #[ORM\Column(type: 'string', length: 255)]
     private $password;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'datetime')]
     private $date;
 
     #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'hosted_games')]
@@ -29,8 +31,19 @@ class Game
     #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'games_won')]
     private $winner;
 
-    #[ORM\OneToOne(targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: PlayerGame::class)]
     private $players;
+
+    #[ORM\Column(type: 'boolean')]
+    private $is_in_progress;
+
+
+
+    public function __construct()
+    {
+        $this->player = new ArrayCollection();
+        $this->players = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -97,20 +110,47 @@ class Game
         return $this;
     }
 
-    public function getPlayers(): ?PlayerGame
+    /**
+     * @return Collection<int, PlayerGame>
+     */
+    public function getPlayers(): Collection
     {
         return $this->players;
     }
 
-    public function setPlayers(PlayerGame $players): self
+    public function addPlayer(PlayerGame $player): self
     {
-        // set the owning side of the relation if necessary
-        if ($players->getGame() !== $this) {
-            $players->setGame($this);
+        if (!$this->players->contains($player)) {
+            $this->players[] = $player;
+            $player->setGame($this);
         }
 
-        $this->players = $players;
+        return $this;
+    }
+
+    public function removePlayer(PlayerGame $player): self
+    {
+        if ($this->players->removeElement($player)) {
+            // set the owning side to null (unless already changed)
+            if ($player->getGame() === $this) {
+                $player->setGame(null);
+            }
+        }
 
         return $this;
-    }    
+    }
+
+    public function getIsInProgress(): ?bool
+    {
+        return $this->is_in_progress;
+    }
+
+    public function setIsInProgress(bool $is_in_progress): self
+    {
+        $this->is_in_progress = $is_in_progress;
+
+        return $this;
+    }
+
+
 }

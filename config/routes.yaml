@@ -96,3 +96,10 @@ api_delete_player_account:
   path: /api/delete_account
   controller: App\Controller\FrontController::deletePlayerAccount
   methods: DELETE
+
+#GAMES
+
+api_create_game:
+  path: /api/create_game
+  controller: App\Controller\FrontPlayerGameController::createGame
+  methods: POST  

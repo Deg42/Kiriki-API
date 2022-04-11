@@ -5,9 +5,9 @@ namespace App\Entity;
 use App\Repository\PlayerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+
 
 #[ORM\Entity(repositoryClass: PlayerRepository::class)]
 
@@ -30,22 +30,26 @@ class Player
     #[ORM\Column(type: 'datetime')]
     private $reg_date;
 
-    #[ORM\OneToMany(mappedBy: 'host', targetEntity: Game::class)]
-    private $hosted_games;
-
-    #[ORM\OneToMany(mappedBy: 'winner', targetEntity: Game::class)]
-    private $games_won;
-
     #[ORM\Column(type: 'string', length: 180, nullable: true)]
     private $session_token;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private $token_expiration;
 
+    #[ORM\OneToMany(mappedBy: 'host', targetEntity: Game::class, orphanRemoval: true)]
+    private $hosted_games;
+
+    #[ORM\OneToMany(mappedBy: 'winner', targetEntity: Game::class)]
+    private $games_won;
+
+    #[ORM\OneToMany(mappedBy: 'player', targetEntity: PlayerGame::class)]
+    private $games_played;
+
     public function __construct()
     {
         $this->hosted_games = new ArrayCollection();
         $this->games_won = new ArrayCollection();
+        $this->games_played = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -97,6 +101,30 @@ class Player
     public function setRegDate(\DateTimeInterface $reg_date): self
     {
         $this->reg_date = $reg_date;
+
+        return $this;
+    }
+
+    public function getSessionToken(): ?string
+    {
+        return $this->session_token;
+    }
+    
+    public function setSessionToken(string $session_token): self
+    {
+        $this->session_token = $session_token;
+
+        return $this;
+    }
+
+    public function getTokenExpiration(): ?\DateTimeInterface
+    {
+        return $this->token_expiration;
+    }
+
+    public function setTokenExpiration(\DateTimeInterface $token_expiration): self
+    {
+        $this->token_expiration = $token_expiration;
 
         return $this;
     }
@@ -161,26 +189,32 @@ class Player
         return $this;
     }
 
-    public function getSessionToken(): ?string
+    /**
+     * @return Collection<int, PlayerGame>
+     */
+    public function getGamesPlayed(): Collection
     {
-        return $this->session_token;
+        return $this->games_played;
     }
-    
-    public function setSessionToken(string $session_token): self
+
+    public function addGamesPlayed(PlayerGame $gamesPlayed): self
     {
-        $this->session_token = $session_token;
+        if (!$this->games_played->contains($gamesPlayed)) {
+            $this->games_played[] = $gamesPlayed;
+            $gamesPlayed->setPlayer($this);
+        }
 
         return $this;
     }
 
-    public function getTokenExpiration(): ?\DateTimeInterface
+    public function removeGamesPlayed(PlayerGame $gamesPlayed): self
     {
-        return $this->token_expiration;
-    }
-
-    public function setTokenExpiration(\DateTimeInterface $token_expiration): self
-    {
-        $this->token_expiration = $token_expiration;
+        if ($this->games_played->removeElement($gamesPlayed)) {
+            // set the owning side to null (unless already changed)
+            if ($gamesPlayed->getPlayer() === $this) {
+                $gamesPlayed->setPlayer(null);
+            }
+        }
 
         return $this;
     }

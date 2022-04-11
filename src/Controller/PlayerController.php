@@ -75,7 +75,7 @@ class PlayerController extends AbstractController
 
         $result = new \stdClass();
         $result->games_played = new \stdClass();
-        $result->games_played->count = count($player->getGames() ?? []);
+        $result->games_played->count = count($player->getGamesPlayed() ?? []);
         $result->games_played->results = array();
 
         $result->games_hosted = new \stdClass();
@@ -86,22 +86,22 @@ class PlayerController extends AbstractController
         $result->games_won->count = count($player->getGamesWon());
         $result->games_won->results = array();
 
-        if ($player->getGames()) {
-            foreach ($player->getGames() as $played_game) {
-                $result->games_played->results[] = $this->generateUrl('api_get_games', [
+        if ($player->getGamesPlayed()) {
+            foreach ($player->getGamesPlayed() as $played_game) {
+                $result->games_played->results[] = $this->generateUrl('admin_get_games', [
                     'id' => $played_game->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
             }
         }
 
         foreach ($player->getHostedGames() as $hosted_game) {
-            $result->games_hosted->results[] = $this->generateUrl('api_get_games', [
+            $result->games_hosted->results[] = $this->generateUrl('admin_get_games', [
                 'id' => $hosted_game->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         foreach ($player->getGamesWon() as $game_won) {
-            $result->games_won->results[] = $this->generateUrl('api_get_games', [
+            $result->games_won->results[] = $this->generateUrl('admin_get_games', [
                 'id' => $game_won->getId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }

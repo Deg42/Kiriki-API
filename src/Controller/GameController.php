@@ -39,7 +39,7 @@ class GameController extends AbstractController
 
             if ($game->getPlayers()) {
                 foreach ($game->getPlayers() as $player) {
-                    $result->players->results[] = $this->generateUrl('api_get_players', [
+                    $result->players->results[] = $this->generateUrl('admin_get_players', [
                         'id' => $player->getId(),
                     ], UrlGeneratorInterface::ABSOLUTE_URL);
                 }
@@ -82,7 +82,7 @@ class GameController extends AbstractController
 
         if ($game->getPlayers()) {
             foreach ($game->getPlayers() as $player) {
-                $result->players->results[] = $this->generateUrl('api_get_players', [
+                $result->players->results[] = $this->generateUrl('admin_get_players', [
                     'id' => $player->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
             }
@@ -120,13 +120,15 @@ class GameController extends AbstractController
         $game->setPassword(password_hash($password, PASSWORD_DEFAULT));
         $game->setDate(new \DateTime());
         $game->setHost($host);
+        $game->setIsInProgress(false);
+        $game->addPlayer($host);
 
         $entityManager->persist($game);
         $entityManager->flush();
 
         $result = new \stdClass();
         $result->id = $game->getId();
-        $result->host = $this->generateUrl('api_get_players', [
+        $result->host = $this->generateUrl('admin_get_players', [
             'id' => $host->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
         $result->name = $game->getName();
@@ -172,13 +174,13 @@ class GameController extends AbstractController
 
         $result = new \stdClass();
         $result->id = $game->getId();
-        $result->host = $this->generateUrl('api_get_players', [
+        $result->host = $this->generateUrl('admin_get_players', [
             'id' => $game->getHost()->getId()
         ], UrlGeneratorInterface::ABSOLUTE_URL);
         $result->name = $game->getName();
         $result->winner =
             $game->getWinner()
-            ? $this->generateUrl('api_get_players', ['id' => $game->getWinner()->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+            ? $this->generateUrl('admin_get_players', ['id' => $game->getWinner()->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
             : null;
         $result->created_at = $game->getDate();
 
@@ -188,7 +190,7 @@ class GameController extends AbstractController
 
         if ($game->getPlayers()) {
             foreach ($game->getPlayers() as $player) {
-                $result->players->results[] = $this->generateUrl('api_get_players', [
+                $result->players->results[] = $this->generateUrl('admin_get_players', [
                     'id' => $player->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
             }

@@ -25,11 +25,11 @@ class PlayerGame
     #[ORM\Column(type: 'integer')]
     private $points;
 
-    #[ORM\OneToOne(inversedBy: 'players', targetEntity: Game::class, cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: Game::class, inversedBy: 'players', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private $game;
 
-    #[ORM\OneToOne(inversedBy: 'games', targetEntity: Player::class, cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'games_played', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private $player;
 
@@ -67,7 +67,7 @@ class PlayerGame
         return $this->is_turn;
     }
 
-    public function setIsTurn(bool $is_turn): self
+    public function setIsTurn(?bool $is_turn): self
     {
         $this->is_turn = $is_turn;
 
