@@ -7,7 +7,7 @@ kernel:
   type: annotation
 
 api_index:
-  path: /api
+  path: /
   controller: App\Controller\ApiController::index
   methods: GET
 
