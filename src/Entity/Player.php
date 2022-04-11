@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: PlayerRepository::class)]
-class Player implements UserInterface
+class Player
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,9 +18,6 @@ class Player implements UserInterface
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     private $username;
-
-    #[ORM\Column(type: 'json')]
-    private $roles = [];
 
     #[ORM\Column(type: 'string', length: 255)]
     private $email;
@@ -37,8 +34,8 @@ class Player implements UserInterface
     #[ORM\OneToMany(mappedBy: 'winner', targetEntity: Game::class)]
     private $games_won;
 
-    #[ORM\OneToOne(targetEntity: PlayerGame::class, cascade: ['persist', 'remove'])]
-    private $games;
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    private $session_token;
 
     public function __construct()
     {
@@ -61,44 +58,6 @@ class Player implements UserInterface
         $this->username = $username;
 
         return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->username;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials()
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
     }
 
     public function getEmail(): ?string
@@ -197,19 +156,14 @@ class Player implements UserInterface
         return $this;
     }
 
-    public function getGames(): ?PlayerGame
+    public function getSessionToken(): ?string
     {
-        return $this->games;
+        return $this->session_token;
     }
-
-    public function setGames(PlayerGame $games): self
+    
+    public function setSessionToken(string $session_token): self
     {
-        // set the owning side of the relation if necessary
-        if ($games->getPlayer() !== $this) {
-            $games->setPlayer($this);
-        }
-
-        $this->games = $games;
+        $this->session_token = $session_token;
 
         return $this;
     }
