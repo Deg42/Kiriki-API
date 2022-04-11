@@ -16,59 +16,59 @@ api_index:
 
 # PLAYERS
 
-api_get_players:
+admin_get_players:
   path: /admin/players
   controller: App\Controller\PlayerController::getAllPlayers
   methods: GET
 
-api_get_player:
+admin_get_player:
   path: /admin/players/{id}
   controller: App\Controller\PlayerController::getPlayer
   methods: GET
 
-api_get_player_games:
+admin_get_player_games:
   path: /admin/players/{id}/games
   controller: App\Controller\PlayerController::getPlayerGames
   methods: GET
 
-api_post_player:
+admin_post_player:
   path: /admin/players
   controller: App\Controller\PlayerController::postPlayer
   methods: POST
 
-api_patch_player:
+admin_patch_player:
   path: /admin/players/{id}
   controller: App\Controller\PlayerController::patchPlayer
   methods: PATCH
 
-api_delete_player:
+admin_delete_player:
   path: /admin/players/{id}
   controller: App\Controller\PlayerController::deletePlayer
   methods: DELETE
 
 # GAMES
 
-api_get_games:
+admin_get_games:
   path: /admin/games
   controller: App\Controller\GameController::getAllGames
   methods: GET
 
-api_get_game:
+admin_get_game:
   path: /admin/games/{id}
   controller: App\Controller\GameController::getGame
   methods: GET
 
-api_post_game:
+admin_post_game:
   path: /admin/games
   controller: App\Controller\GameController::postGame
   methods: POST
 
-api_patch_game:
+admin_patch_game:
   path: /admin/games/{id}
   controller: App\Controller\GameController::patchGame
   methods: PATCH
 
-api_delete_game:
+admin_delete_game:
   path: /admin/games/{id}
   controller: App\Controller\GameController::deleteGame
   methods: DELETE
@@ -77,17 +77,22 @@ api_delete_game:
 
 # PLAYERS
 
-register_player:
+api_register_player:
   path: /api/register
   controller: App\Controller\FrontController::registerPlayer
   methods: POST
 
-update_player:
+api_login_player:
+  path: /api/login
+  controller: App\Controller\FrontController::loginPlayer
+  methods: PATCH
+
+api_update_player:
   path: /api/player_settings
   controller: App\Controller\FrontController::updatePlayer
   methods: PATCH
 
-delete_player_account:
+api_delete_player_account:
   path: /api/delete_account
   controller: App\Controller\FrontController::deletePlayerAccount
   methods: DELETE

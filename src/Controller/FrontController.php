@@ -40,9 +40,41 @@ class FrontController extends AbstractController
         return new JsonResponse(['success' => 'Player registered successfully'], 200);
     }
 
+    function loginPlayer(ManagerRegistry $doctrine, Request $request)
+    {
+        $username = $request->get("username");
+        $email = $request->get("email");
+        $password = $request->get("password");
+
+        $entityManager = $doctrine->getManager();
+
+        $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $username]);
+        if (is_null($player)) {
+            $player = $entityManager->getRepository(Player::class)->findOneBy(['email' => $email]);
+        }
+
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
+        if (!password_verify($password, $player->getPassword())) {
+            return new JsonResponse(['error' => 'Wrong password'], 401);
+        }
+
+        $player->setSessionToken(bin2hex(random_bytes(16)));
+        $player->setTokenExpiration(new \DateTime('now +5 minutes'));
+
+        $entityManager->persist($player);
+        $entityManager->flush();
+        
+        return new JsonResponse(['success' => 'Player logged in successfully', 'token' => $player->getSessionToken()], 200);
+    }
+
     function updatePlayer(ManagerRegistry $doctrine, Request $request)
     {
+        
         $id = $request->get('id');
+        $token = $request->get('token');
         $password = $request->get('password');
 
         $newUsername = $request->get("new_username");
@@ -52,12 +84,16 @@ class FrontController extends AbstractController
         $entityManager = $doctrine->getManager();
 
         $player = $entityManager->getRepository(Player::class)->find($id);
-
+    
         $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $newUsername]);
         $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $newEmail]);
-        
+
         if (is_null($player)) {
             return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
+        if (is_null($token) || $token != $player->getSessionToken() || $player->getTokenExpiration() < new \DateTime()) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
         }
 
         if (!password_verify($password, $player->getPassword())) {
@@ -76,7 +112,7 @@ class FrontController extends AbstractController
 
         if ($playerByUser) {
             return new JsonResponse(['error' => 'There is already a player with that username'], 409);
-        }   
+        }
         if ($playerByEmail) {
             return new JsonResponse(['error' => 'There is already a player with that email'], 409);
         }
@@ -96,7 +132,7 @@ class FrontController extends AbstractController
             $player->setPassword(password_hash($newPassword, PASSWORD_DEFAULT));
         }
 
-        
+
         $entityManager->persist($player);
         $entityManager->flush();
 
@@ -106,6 +142,7 @@ class FrontController extends AbstractController
     function deletePlayerAccount(ManagerRegistry $doctrine, Request $request)
     {
         $id = $request->get('id');
+        $token = $request->get('token');
         $password = $request->get('password');
 
         $entityManager = $doctrine->getManager();
@@ -113,6 +150,10 @@ class FrontController extends AbstractController
 
         if (is_null($player)) {
             return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
+        if (is_null($token) || $token != $player->getSessionToken() || $player->getTokenExpiration() < new \DateTime()) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
         }
 
         if (!password_verify($password, $player->getPassword())) {

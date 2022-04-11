@@ -34,8 +34,11 @@ class Player
     #[ORM\OneToMany(mappedBy: 'winner', targetEntity: Game::class)]
     private $games_won;
 
-    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[ORM\Column(type: 'string', length: 180, nullable: true)]
     private $session_token;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private $token_expiration;
 
     public function __construct()
     {
@@ -164,6 +167,18 @@ class Player
     public function setSessionToken(string $session_token): self
     {
         $this->session_token = $session_token;
+
+        return $this;
+    }
+
+    public function getTokenExpiration(): ?\DateTimeInterface
+    {
+        return $this->token_expiration;
+    }
+
+    public function setTokenExpiration(\DateTimeInterface $token_expiration): self
+    {
+        $this->token_expiration = $token_expiration;
 
         return $this;
     }
