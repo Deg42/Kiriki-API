@@ -6,10 +6,8 @@ security:
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
-        app_user_provider:
-            entity:
-                class: App\Entity\Player
-                property: username
+        users_in_memory: { memory: null }
+
     firewalls:
         login:
             pattern: ^/api/login
@@ -27,7 +25,7 @@ security:
             security: false
         main:
             lazy: true
-            provider: app_user_provider
+            provider: users_in_memory
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
