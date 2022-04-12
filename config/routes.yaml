@@ -102,4 +102,9 @@ api_delete_player_account:
 api_create_game:
   path: /api/create_game
   controller: App\Controller\FrontPlayerGameController::createGame
-  methods: POST  
+  methods: POST
+
+api_login_game:
+  path: /api/join_game
+  controller: App\Controller\FrontPlayerGameController::joinGame
+  methods: PATCH

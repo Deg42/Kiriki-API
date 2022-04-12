@@ -25,11 +25,11 @@ class PlayerGame
     #[ORM\Column(type: 'integer')]
     private $points;
 
-    #[ORM\ManyToOne(targetEntity: Game::class, inversedBy: 'players', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: Game::class, inversedBy: 'players')]
     #[ORM\JoinColumn(nullable: false)]
     private $game;
 
-    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'games_played', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'games_played')]
     #[ORM\JoinColumn(nullable: false)]
     private $player;
 

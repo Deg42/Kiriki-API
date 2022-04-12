@@ -31,7 +31,7 @@ class Game
     #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'games_won')]
     private $winner;
 
-    #[ORM\OneToMany(mappedBy: 'game', targetEntity: PlayerGame::class)]
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: PlayerGame::class, orphanRemoval: true, cascade: ['persist'])]
     private $players;
 
     #[ORM\Column(type: 'boolean')]

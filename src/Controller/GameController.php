@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Game;
 use App\Entity\Player;
+use App\Entity\PlayerGame;
 
 class GameController extends AbstractController
 {
@@ -121,9 +122,16 @@ class GameController extends AbstractController
         $game->setDate(new \DateTime());
         $game->setHost($host);
         $game->setIsInProgress(false);
-        $game->addPlayer($host);
+
+        $playerInGame = new PlayerGame();
+        $playerInGame->setPlayer($host);
+        $playerInGame->setGame($game);
+        $playerInGame->setTurnOrder(0);
+        $playerInGame->setPoints(9);
+        $playerInGame->setIsTurn(true);
 
         $entityManager->persist($game);
+        $entityManager->persist($playerInGame);
         $entityManager->flush();
 
         $result = new \stdClass();
