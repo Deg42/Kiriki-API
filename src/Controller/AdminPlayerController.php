@@ -10,7 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Player;
 
 
-class PlayerController extends AbstractController
+class AdminPlayerController extends AbstractController
 {
     function getAllPlayers(ManagerRegistry $doctrine, Request $request)
     {
@@ -230,6 +230,10 @@ class PlayerController extends AbstractController
 
         if (is_null($player)) {
             return new JsonResponse(['error' => 'Player not found for id ' . $id], 404);
+        }
+
+        foreach ($player->getGamesPlayed() as $played_game) {
+            $entityManager->remove($played_game);
         }
 
         $entityManager->remove($player);

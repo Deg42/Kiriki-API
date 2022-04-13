@@ -18,59 +18,59 @@ api_index:
 
 admin_get_players:
   path: /admin/players
-  controller: App\Controller\PlayerController::getAllPlayers
+  controller: App\Controller\AdminPlayerController::getAllPlayers
   methods: GET
 
 admin_get_player:
   path: /admin/players/{id}
-  controller: App\Controller\PlayerController::getPlayer
+  controller: App\Controller\AdminPlayerController::getPlayer
   methods: GET
 
 admin_get_player_games:
   path: /admin/players/{id}/games
-  controller: App\Controller\PlayerController::getPlayerGames
+  controller: App\Controller\AdminPlayerController::getPlayerGames
   methods: GET
 
 admin_post_player:
   path: /admin/players
-  controller: App\Controller\PlayerController::postPlayer
+  controller: App\Controller\AdminPlayerController::postPlayer
   methods: POST
 
 admin_patch_player:
   path: /admin/players/{id}
-  controller: App\Controller\PlayerController::patchPlayer
+  controller: App\Controller\AdminPlayerController::patchPlayer
   methods: PATCH
 
 admin_delete_player:
   path: /admin/players/{id}
-  controller: App\Controller\PlayerController::deletePlayer
+  controller: App\Controller\AdminPlayerController::deletePlayer
   methods: DELETE
 
 # GAMES
 
 admin_get_games:
   path: /admin/games
-  controller: App\Controller\GameController::getAllGames
+  controller: App\Controller\AdminGameController::getAllGames
   methods: GET
 
 admin_get_game:
   path: /admin/games/{id}
-  controller: App\Controller\GameController::getGame
+  controller: App\Controller\AdminGameController::getGame
   methods: GET
 
 admin_post_game:
   path: /admin/games
-  controller: App\Controller\GameController::postGame
+  controller: App\Controller\AdminGameController::postGame
   methods: POST
 
 admin_patch_game:
   path: /admin/games/{id}
-  controller: App\Controller\GameController::patchGame
+  controller: App\Controller\AdminGameController::patchGame
   methods: PATCH
 
 admin_delete_game:
   path: /admin/games/{id}
-  controller: App\Controller\GameController::deleteGame
+  controller: App\Controller\AdminGameController::deleteGame
   methods: DELETE
 
 # --- Front routes ---
@@ -79,25 +79,25 @@ admin_delete_game:
 
 api_register_player:
   path: /api/register
-  controller: App\Controller\FrontController::registerPlayer
+  controller: App\Controller\FrontPlayerController::registerPlayer
   methods: POST
 
 api_login_player:
   path: /api/login
-  controller: App\Controller\FrontController::loginPlayer
+  controller: App\Controller\FrontPlayerController::loginPlayer
   methods: PATCH
 
 api_update_player:
   path: /api/player_settings
-  controller: App\Controller\FrontController::updatePlayer
+  controller: App\Controller\FrontPlayerController::updatePlayer
   methods: PATCH
 
 api_delete_player_account:
   path: /api/delete_account
-  controller: App\Controller\FrontController::deletePlayerAccount
+  controller: App\Controller\FrontPlayerController::deletePlayerAccount
   methods: DELETE
 
-#GAMES
+# PLAYERS_GAMES
 
 api_create_game:
   path: /api/create_game
@@ -107,4 +107,16 @@ api_create_game:
 api_login_game:
   path: /api/join_game
   controller: App\Controller\FrontPlayerGameController::joinGame
+  methods: PATCH
+
+api_start_game:
+  path: /api/start_game
+  controller: App\Controller\FrontPlayerGameController::startGame
+  methods: PATCH
+
+# GAMES
+
+api_roll_dices:
+  path: /api/roll_dices
+  controller: App\Controller\FrontGameController::rollDices
   methods: PATCH

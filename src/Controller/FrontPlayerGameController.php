@@ -126,4 +126,49 @@ class FrontPlayerGameController extends AbstractController
 
         return new JsonResponse(['success' => 'Player joined game successfully'], 200);
     }
+
+    function startGame(ManagerRegistry $doctrine, Request $request){
+        $host = $request->get('host_id');
+        $token = $request->get('token');
+        $gameId = $request->get('game_id');
+
+        $entityManager = $doctrine->getManager();
+        $host = $entityManager->getRepository(Player::class)->find($host);
+        $game = $entityManager->getRepository(Game::class)->find($gameId);
+
+        if (is_null($game)) {
+            return new JsonResponse(['error' => 'Game not found'], 404);
+        }
+
+        if (is_null($host)) {
+            return new JsonResponse(['error' => 'Host not found'], 404);
+        }
+
+        if ($host != $game->getHost()) {
+            return new JsonResponse(['error' => 'Host is not the game host'], 400);
+        }
+
+        if (is_null($token) || $token != $game->getHost()->getSessionToken() || $game->getHost()->getTokenExpiration() < new \DateTime()) {
+            return new JsonResponse(['error' => 'Invalid token'], 401);
+        }
+
+        if ($game->getIsInProgress()) {
+            return new JsonResponse(['error' => 'Game is already in progress'], 400);
+        }
+
+        // NO TESTEADO
+        if ($game->getWinner()) {
+            return new JsonResponse(['error' => 'Game is already over'], 400);
+        }
+        //
+        
+        if (count($game->getPlayers()) < 2) {
+            return new JsonResponse(['error' => 'Not enough players to start the game'], 400);
+        }
+        
+        $game->setIsInProgress(true);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => 'Game started successfully'], 200);
+    }
 }

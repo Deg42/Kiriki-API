@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Player;
 
-class FrontController extends AbstractController
+class FrontPlayerController extends AbstractController
 {
     function registerPlayer(ManagerRegistry $doctrine, Request $request)
     {
@@ -62,7 +62,7 @@ class FrontController extends AbstractController
         }
 
         $player->setSessionToken(bin2hex(random_bytes(16)));
-        $player->setTokenExpiration(new \DateTime('now +5 minutes'));
+        $player->setTokenExpiration(new \DateTime('now +12 hours'));
 
         $entityManager->persist($player);
         $entityManager->flush();

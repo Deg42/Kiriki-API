@@ -11,7 +11,7 @@ use App\Entity\Game;
 use App\Entity\Player;
 use App\Entity\PlayerGame;
 
-class GameController extends AbstractController
+class AdminGameController extends AbstractController
 {
     function getAllGames(ManagerRegistry $doctrine, Request $request)
     {
