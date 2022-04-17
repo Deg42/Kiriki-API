@@ -120,3 +120,18 @@ api_roll_dices:
   path: /api/roll_dices
   controller: App\Controller\FrontGameController::rollDices
   methods: PATCH
+
+api_set_bid:
+  path: /api/make_bid
+  controller: App\Controller\FrontGameController::setBid
+  methods: PATCH
+
+api_get_last_bid:
+  path: /api/get_bid
+  controller: App\Controller\FrontGameController::getLastBid
+  methods: GET
+
+api_get_last_roll:
+  path: /api/get_roll
+  controller: App\Controller\FrontGameController::getLastRoll
+  methods: GET
