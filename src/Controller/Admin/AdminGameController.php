@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Admin;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,12 +66,11 @@ class AdminGameController extends AbstractController
 
         if (is_null($game)) {
             return new JsonResponse([
-                'error' => 'No game found for id ' . $id
+                'error' => 'Game not found'
             ], 404);
         }
 
         $result = new \stdClass();
-        $result->id = $game->getId();
         $result->name = $game->getName();
         $result->host = $game->getHost()->getUsername();
         $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
@@ -113,7 +112,7 @@ class AdminGameController extends AbstractController
         }
 
         if (is_null($host)) {
-            return new JsonResponse(['error' => 'There is no host with the id ' . $hostId], 404);
+            return new JsonResponse(['error' => 'Host not found'], 404);
         }
 
         $game = new Game();
@@ -161,7 +160,7 @@ class AdminGameController extends AbstractController
         $gameByName = $entityManager->getRepository(Game::class)->findOneBy(['name' => $newName]);
 
         if (is_null($game)) {
-            return new JsonResponse(['error' => 'Game not found for id ' . $id], 404);
+            return new JsonResponse(['error' => 'Game not found'], 404);
         }
         if ($gameByName) {
             return new JsonResponse(['error' => 'There is already a game with that name'], 409);
@@ -219,7 +218,7 @@ class AdminGameController extends AbstractController
         $game = $entityManager->getRepository(Game::class)->find($id);
 
         if (is_null($game)) {
-            return new JsonResponse(['error' => 'No game found for id ' . $id], 404);
+            return new JsonResponse(['error' => 'Game not found'], 404);
         }
 
         $entityManager->remove($game);

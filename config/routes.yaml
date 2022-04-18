@@ -18,59 +18,59 @@ api_index:
 
 admin_get_players:
   path: /admin/players
-  controller: App\Controller\AdminPlayerController::getAllPlayers
+  controller: App\Controller\Admin\AdminPlayerController::getAllPlayers
   methods: GET
 
 admin_get_player:
   path: /admin/players/{id}
-  controller: App\Controller\AdminPlayerController::getPlayer
+  controller: App\Controller\Admin\AdminPlayerController::getPlayer
   methods: GET
 
 admin_get_player_games:
   path: /admin/players/{id}/games
-  controller: App\Controller\AdminPlayerController::getPlayerGames
+  controller: App\Controller\Admin\AdminPlayerController::getPlayerGames
   methods: GET
 
 admin_post_player:
   path: /admin/players
-  controller: App\Controller\AdminPlayerController::postPlayer
+  controller: App\Controller\Admin\AdminPlayerController::postPlayer
   methods: POST
 
 admin_patch_player:
   path: /admin/players/{id}
-  controller: App\Controller\AdminPlayerController::patchPlayer
+  controller: App\Controller\Admin\AdminPlayerController::patchPlayer
   methods: PATCH
 
 admin_delete_player:
   path: /admin/players/{id}
-  controller: App\Controller\AdminPlayerController::deletePlayer
+  controller: App\Controller\Admin\AdminPlayerController::deletePlayer
   methods: DELETE
 
 # GAMES
 
 admin_get_games:
   path: /admin/games
-  controller: App\Controller\AdminGameController::getAllGames
+  controller: App\Controller\Admin\AdminGameController::getAllGames
   methods: GET
 
 admin_get_game:
   path: /admin/games/{id}
-  controller: App\Controller\AdminGameController::getGame
+  controller: App\Controller\Admin\AdminGameController::getGame
   methods: GET
 
 admin_post_game:
   path: /admin/games
-  controller: App\Controller\AdminGameController::postGame
+  controller: App\Controller\Admin\AdminGameController::postGame
   methods: POST
 
 admin_patch_game:
   path: /admin/games/{id}
-  controller: App\Controller\AdminGameController::patchGame
+  controller: App\Controller\Admin\AdminGameController::patchGame
   methods: PATCH
 
 admin_delete_game:
   path: /admin/games/{id}
-  controller: App\Controller\AdminGameController::deleteGame
+  controller: App\Controller\Admin\AdminGameController::deleteGame
   methods: DELETE
 
 # --- Front routes ---
@@ -79,59 +79,57 @@ admin_delete_game:
 
 api_register_player:
   path: /api/register
-  controller: App\Controller\FrontPlayerController::registerPlayer
+  controller: App\Controller\External\ExternalPlayerController::registerPlayer
   methods: POST
 
 api_login_player:
   path: /api/login
-  controller: App\Controller\FrontPlayerController::loginPlayer
+  controller: App\Controller\External\ExternalPlayerController::loginPlayer
   methods: PATCH
 
 api_update_player:
   path: /api/player_settings
-  controller: App\Controller\FrontPlayerController::updatePlayer
+  controller: App\Controller\External\ExternalPlayerController::updatePlayer
   methods: PATCH
 
 api_delete_player_account:
   path: /api/delete_account
-  controller: App\Controller\FrontPlayerController::deletePlayerAccount
+  controller: App\Controller\External\ExternalPlayerController::deletePlayerAccount
   methods: DELETE
-
-# PLAYERS_GAMES
 
 api_create_game:
   path: /api/create_game
-  controller: App\Controller\FrontPlayerGameController::createGame
+  controller: App\Controller\External\ExternalPlayerController::createGame
   methods: POST
 
 api_login_game:
   path: /api/join_game
-  controller: App\Controller\FrontPlayerGameController::joinGame
+  controller: App\Controller\External\ExternalPlayerController::joinGame
   methods: PATCH
 
 api_start_game:
   path: /api/start_game
-  controller: App\Controller\FrontPlayerGameController::startGame
+  controller:  App\Controller\External\ExternalPlayerController::startGame
   methods: PATCH
 
 # GAMES
 
 api_roll_dices:
   path: /api/roll_dices
-  controller: App\Controller\FrontGameController::rollDices
+  controller: App\Controller\External\ExternalGameController::rollDices
   methods: PATCH
 
 api_set_bid:
   path: /api/make_bid
-  controller: App\Controller\FrontGameController::setBid
+  controller: App\Controller\External\ExternalGameController::setBid
   methods: PATCH
 
 api_get_last_bid:
   path: /api/get_bid
-  controller: App\Controller\FrontGameController::getLastBid
+  controller: App\Controller\External\ExternalGameController::getLastBid
   methods: GET
 
 api_get_last_roll:
   path: /api/get_roll
-  controller: App\Controller\FrontGameController::getLastRoll
+  controller: App\Controller\External\ExternalGameController::getLastRoll
   methods: GET
