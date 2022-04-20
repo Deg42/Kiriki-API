@@ -39,9 +39,9 @@ class AdminGameController extends AbstractController
             $result->players->results = array();
 
             if ($game->getPlayers()) {
-                foreach ($game->getPlayers() as $player) {
-                    $result->players->results[] = $this->generateUrl('admin_get_players', [
-                        'id' => $player->getId(),
+                foreach ($game->getPlayers() as $playerInGame) {
+                    $result->players->results[] = $this->generateUrl('admin_get_player', [
+                        'id' => $playerInGame->getPlayer()->getId(),
                     ], UrlGeneratorInterface::ABSOLUTE_URL);
                 }
             }
@@ -81,9 +81,9 @@ class AdminGameController extends AbstractController
         $result->players->results = array();
 
         if ($game->getPlayers()) {
-            foreach ($game->getPlayers() as $player) {
-                $result->players->results[] = $this->generateUrl('admin_get_players', [
-                    'id' => $player->getId(),
+            foreach ($game->getPlayers() as $playerInGame) {
+                $result->players->results[] = $this->generateUrl('admin_get_player', [
+                    'id' => $playerInGame->getPlayer()->getId(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL);
             }
         }

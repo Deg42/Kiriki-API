@@ -12,6 +12,9 @@ use App\Entity\PlayerGame;
 
 class ExternalPlayerController extends AbstractController
 {
+
+    const MAX_POINTS = 2;
+
     function registerPlayer(ManagerRegistry $doctrine, Request $request)
     {
         $username = $request->get("username");
@@ -208,7 +211,7 @@ class ExternalPlayerController extends AbstractController
         $playerInGame->setPlayer($host);
         $playerInGame->setGame($game);
         $playerInGame->setTurnOrder(0);
-        $playerInGame->setPoints(9);
+        $playerInGame->setPoints(ExternalPlayerController::MAX_POINTS);
         $playerInGame->setIsTurn(true);
 
         $game->addPlayer($playerInGame);
@@ -263,7 +266,7 @@ class ExternalPlayerController extends AbstractController
         $playerInGame->setPlayer($player);
         $playerInGame->setGame($game);
         $playerInGame->setTurnOrder(count($game->getPlayers()));
-        $playerInGame->setPoints(9);
+        $playerInGame->setPoints(ExternalPlayerController::MAX_POINTS);
         $playerInGame->setIsTurn(false);
 
         $entityManager->persist($playerInGame);

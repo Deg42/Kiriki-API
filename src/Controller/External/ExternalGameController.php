@@ -33,17 +33,16 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'Player not found'], 404);
         }
 
-
         $playerInGame = $entityManager->getRepository(PlayerGame::class)->findOneBy(['player' => $player, 'game' => $game]);
+
+        if (is_null($playerInGame)) {
+            return new JsonResponse(['error' => 'Player not in game'], 400);
+        }
 
         $previousPlayerInGame = $this->getPreviousPlayer($doctrine, $game, $playerInGame);
         $previousBid1 = $previousPlayerInGame->getBid1();
         $previousBid2 = $previousPlayerInGame->getBid2();
 
-
-        if (is_null($playerInGame)) {
-            return new JsonResponse(['error' => 'Player not in game'], 400);
-        }
 
         if (is_null($token) || $token != $player->getSessionToken() || $player->getTokenExpiration() < new \DateTime()) {
             return new JsonResponse(['error' => 'Invalid token'], 401);
@@ -54,7 +53,7 @@ class ExternalGameController extends AbstractController
         }
 
         if ($game->getWinner()) {
-            return new JsonResponse(['error' => 'Game is already finished'], 400);
+            return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
         }
 
         if (!$playerInGame->getIsTurn()) {
@@ -77,7 +76,20 @@ class ExternalGameController extends AbstractController
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->find($playerId);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
+
+        if (is_null($game)) {
+            return new JsonResponse(['error' => 'Game not found'], 404);
+        }
+
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
         $playerInGame = $entityManager->getRepository(PlayerGame::class)->findOneBy(['player' => $player, 'game' => $game]);
+
+        if (is_null($playerInGame)) {
+            return new JsonResponse(['error' => 'Player not in game'], 400);
+        }
 
         $previousPlayerInGame = $this->getPreviousPlayer($doctrine, $game, $playerInGame);
 
@@ -88,17 +100,6 @@ class ExternalGameController extends AbstractController
         $lastBid[1] = $previousPlayerInGame->getBid2();
         $lastBid[2] = $this->calculateRollValues($lastBid[0], $lastBid[1]);
 
-        if (is_null($game)) {
-            return new JsonResponse(['error' => 'Game not found'], 404);
-        }
-
-        if (is_null($player)) {
-            return new JsonResponse(['error' => 'Player not found'], 404);
-        }
-
-        if (is_null($playerInGame)) {
-            return new JsonResponse(['error' => 'Player not in game'], 400);
-        }
 
         if (is_null($token) || $token != $player->getSessionToken() || $player->getTokenExpiration() < new \DateTime()) {
             return new JsonResponse(['error' => 'Invalid token'], 401);
@@ -109,7 +110,7 @@ class ExternalGameController extends AbstractController
         }
 
         if ($game->getWinner()) {
-            return new JsonResponse(['error' => 'Game is already finished'], 400);
+            return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
         }
 
         if (!$playerInGame->getIsTurn()) {
@@ -120,11 +121,6 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'No rolls yet or its the first turn'], 400);
         }
 
-        if ($playerInGame->getIsLastAccepted()) {
-            return new JsonResponse(['error' => 'You have already accepted the last bid'], 400);
-        }
-
-        $playerInGame->setIsLastAccepted(true);
         $playerInGame->setIsTurn(false);
 
         $pointLoser = "";
@@ -140,23 +136,26 @@ class ExternalGameController extends AbstractController
 
         $entityManager->persist($playerInGame);
         $entityManager->flush();
-
+        
         if ($this->checkIfWinner($game)) {
-            return new JsonResponse(['success' => 'Game finished', 'winner' => $game->getWinner()], 200);
-        } else {
-            return new JsonResponse(
-                [
-                    'roll_1' => $lastRoll[0],
-                    'roll_2' => $lastRoll[1],
-                    'roll_value' => $lastRoll[2],
-                    'bid_1' => $lastBid[0],
-                    'bid_2' => $lastBid[1],
-                    'bid_value' => $lastBid[2],
-                    'point_loser' => $pointLoser
-                ],
-                200
-            );
+            $this->finishGame($game);
+            $this->finishGame($game);
+            $entityManager->persist($game);
+            $entityManager->flush();
         }
+
+        return new JsonResponse(
+            [
+                'roll_1' => $lastRoll[0],
+                'roll_2' => $lastRoll[1],
+                'roll_value' => $lastRoll[2],
+                'bid_1' => $lastBid[0],
+                'bid_2' => $lastBid[1],
+                'bid_value' => $lastBid[2],
+                'point_loser' => $pointLoser
+            ],
+            200
+        );
     }
 
     public function rollDices(ManagerRegistry $doctrine, Request $request)
@@ -179,12 +178,11 @@ class ExternalGameController extends AbstractController
 
         $playerInGame = $entityManager->getRepository(PlayerGame::class)->findOneBy(['player' => $player, 'game' => $game]);
 
-        $nextPlayerInGame = $this->getNextPlayer($doctrine, $game, $playerInGame);
-
-
         if (is_null($playerInGame)) {
             return new JsonResponse(['error' => 'Player not in game'], 400);
         }
+
+        $nextPlayerInGame = $this->getNextPlayer($doctrine, $game, $playerInGame);
 
         if (is_null($token) || $token != $player->getSessionToken() || $player->getTokenExpiration() < new \DateTime()) {
             return new JsonResponse(['error' => 'Invalid token'], 401);
@@ -195,7 +193,7 @@ class ExternalGameController extends AbstractController
         }
 
         if ($game->getWinner()) {
-            return new JsonResponse(['error' => 'Game is already finished'], 400);
+            return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
         }
 
         if (!$playerInGame->getIsTurn()) {
@@ -226,7 +224,6 @@ class ExternalGameController extends AbstractController
             $playerInGame->setBid1(null);
             $playerInGame->setBid2(null);
             $nextPlayerInGame->setPoints($nextPlayerInGame->getPoints() - 1);
-            $nextPlayerInGame->setIsLastAccepted(true);
             $nextPlayerInGame->setIsTurn(true);
             $entityManager->persist($nextPlayerInGame);
             $entityManager->persist($playerInGame);
@@ -244,6 +241,9 @@ class ExternalGameController extends AbstractController
         $entityManager->flush();
 
         if ($this->checkIfWinner($game)) {
+            $this->finishGame($game);
+            $entityManager->persist($game);
+            $entityManager->flush();
             return new JsonResponse(['success' => 'Game finished', 'winner' => $game->getWinner()], 200);
         } else {
             return new JsonResponse(['roll1' => $roll[0], 'roll2' => $roll[1], 'value' => $roll[2]], 200);
@@ -258,15 +258,28 @@ class ExternalGameController extends AbstractController
         $actualBid = [];
         array_push(
             $actualBid,
-            $request->get('bid_1'),
-            $request->get('bid_2'),
+            intval($request->get('bid_1')),
+            intval($request->get('bid_2')),
             $this->calculateRollValues($request->get('bid_1'), $request->get('bid_2'))
         );
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->find($playerId);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
+
+        if (is_null($game)) {
+            return new JsonResponse(['error' => 'Game not found'], 404);
+        }
+
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
         $playerInGame = $entityManager->getRepository(PlayerGame::class)->findOneBy(['player' => $player, 'game' => $game]);
+
+        if (is_null($playerInGame)) {
+            return new JsonResponse(['error' => 'Player not in game'], 400);
+        }
 
         $previousPlayerInGame = $this->getPreviousPlayer($doctrine, $game, $playerInGame);
 
@@ -283,17 +296,6 @@ class ExternalGameController extends AbstractController
 
         $nextPlayerInGame = $this->getNextPlayer($doctrine, $game, $playerInGame);
 
-        if (is_null($game)) {
-            return new JsonResponse(['error' => 'Game not found'], 404);
-        }
-
-        if (is_null($player)) {
-            return new JsonResponse(['error' => 'Player not found'], 404);
-        }
-
-        if (is_null($playerInGame)) {
-            return new JsonResponse(['error' => 'Player not in game'], 400);
-        }
 
         if (is_null($token) || $token != $player->getSessionToken() || $player->getTokenExpiration() < new \DateTime()) {
             return new JsonResponse(['error' => 'Invalid token'], 401);
@@ -312,7 +314,7 @@ class ExternalGameController extends AbstractController
         }
 
         if ($game->getWinner()) {
-            return new JsonResponse(['error' => 'Game is already finished'], 400);
+            return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
         }
 
         if (!$playerInGame->getIsTurn()) {
@@ -324,7 +326,7 @@ class ExternalGameController extends AbstractController
         }
 
         if (!empty($previousBid) && (!$this->valuesAreGreaterOrEqualThanLast($actualBid, $previousBid))) {
-            return new JsonResponse(['error' => 'Bid is not greater or equal than last bid'], 400);
+            return new JsonResponse(['error' => 'Bid is not greater or equal than last bid', 'your_bid' => $actualBid, 'last_bid' => $previousBid], 400);
         }
 
         $this->deleteTurnInfo($previousPlayerInGame);
@@ -356,49 +358,48 @@ class ExternalGameController extends AbstractController
 
     private function calculateRollValues($dice1, $dice2)
     {
-        $sum = $dice1 + $dice2;
 
-        $value = ExternalGameController::SECUENCE[$sum - 4];
-
-        if ($sum == 11) {
-            $value = ExternalGameController::SECUENCE[7];
+        if (($dice1 + $dice2) == 11) {
+            return ExternalGameController::SECUENCE[0];
         }
 
         if ($dice1 == $dice2) {
             switch ($dice1) {
                 case 1:
-                    $value = ExternalGameController::SECUENCE[8];
+                    return ExternalGameController::SECUENCE[8];
                     break;
                 case 2:
-                    $value = ExternalGameController::SECUENCE[9];
+                    return ExternalGameController::SECUENCE[9];
                     break;
                 case 3:
-                    $value = ExternalGameController::SECUENCE[10];
+                    return ExternalGameController::SECUENCE[10];
                     break;
                 case 4:
-                    $value = ExternalGameController::SECUENCE[11];
+                    return ExternalGameController::SECUENCE[11];
                     break;
                 case 5:
-                    $value = ExternalGameController::SECUENCE[12];
+                    return ExternalGameController::SECUENCE[12];
                     break;
                 case 6:
-                    $value = ExternalGameController::SECUENCE[13];
+                    return ExternalGameController::SECUENCE[13];
                     break;
                 default:
                     break;
             }
         }
 
-        if ($sum == 3) {
-            $value = ExternalGameController::SECUENCE[14];
+        if (($dice1 + $dice2) == 3) {
+            return ExternalGameController::SECUENCE[7];
         }
 
-        return $value;
+        return ExternalGameController::SECUENCE[array_search($dice1 + $dice2, ExternalGameController::SECUENCE)];
     }
 
     private function valuesAreGreaterOrEqualThanLast($actual, $last)
     {
-        return $this->calculateRollValues($actual[0], $actual[1]) >= $this->calculateRollValues($last[0], $last[1]);
+        $actualKey = array_search($this->calculateRollValues($actual[0], $actual[1]), ExternalGameController::SECUENCE);
+        $lastKey = array_search($this->calculateRollValues($last[0], $last[1]), ExternalGameController::SECUENCE);
+        return $actualKey >= $lastKey;
     }
 
     private function getPreviousPlayer(ManagerRegistry $doctrine, $game, $player)
@@ -435,19 +436,25 @@ class ExternalGameController extends AbstractController
     private function checkIfWinner($game)
     {
         $playersStillInGame = [];
-        foreach ($game->getPlayers() as $player) {
-            if ($player->getPoints() > 0) {
-                array_push($playersStillInGame, $player);
+        foreach ($game->getPlayers() as $playerGame) {
+            if ($playerGame->getPoints() > 0) {
+                array_push($playersStillInGame, $playerGame);
             }
         }
 
         if (count($playersStillInGame) == 1) {
-            $winner = $playersStillInGame[0];
-            $game->setWinner($winner);
-            return $winner;
+            return $playersStillInGame[0];
         }
+
         return false;
     }
+
+    private function finishGame($game)
+    {
+        $game->setWinner($this->checkIfWinner($game)->getPlayer());
+        $game->setIsInProgress(false);
+    }
+
 
     private function deleteTurnInfo($playerInGame)
     {
@@ -455,7 +462,6 @@ class ExternalGameController extends AbstractController
         $playerInGame->setRoll2(null);
         $playerInGame->setBid1(null);
         $playerInGame->setBid2(null);
-        $playerInGame->setIsLastAccepted(null);
     }
 
     private function removePoint($playerInGame)
