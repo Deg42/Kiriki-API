@@ -19,9 +19,6 @@ class PlayerGame
     #[ORM\Column(type: 'boolean')]
     private $is_turn;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
-    private $is_last_accepted;
-
     #[ORM\Column(type: 'integer')]
     private $points;
 
@@ -70,18 +67,6 @@ class PlayerGame
     public function setIsTurn(?bool $is_turn): self
     {
         $this->is_turn = $is_turn;
-
-        return $this;
-    }
-
-    public function getIsLastAccepted(): ?bool
-    {
-        return $this->is_last_accepted;
-    }
-
-    public function setIsLastAccepted(?bool $is_last_accepted): self
-    {
-        $this->is_last_accepted = $is_last_accepted;
 
         return $this;
     }
