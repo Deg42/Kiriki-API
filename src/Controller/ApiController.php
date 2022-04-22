@@ -10,17 +10,6 @@ class ApiController extends AbstractController
 {
     function index()
     {
-        $result = array();
-        $result['players'] = $this->generateUrl(
-            'api_get_players',
-            array(),
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-        $result['games'] = $this->generateUrl(
-            'api_get_games',
-            array(),
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-        return new JsonResponse($result);
+        return new JsonResponse("Welcome to the API", 200);
     }
 }
