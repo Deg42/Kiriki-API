@@ -12,12 +12,12 @@ class ApiController extends AbstractController
     {
         $result = array();
         $result['players'] = $this->generateUrl(
-            'api_get_players',
+            'admin_get_players',
             array(),
             UrlGeneratorInterface::ABSOLUTE_URL
         );
         $result['games'] = $this->generateUrl(
-            'api_get_games',
+            'admin_get_games',
             array(),
             UrlGeneratorInterface::ABSOLUTE_URL
         );

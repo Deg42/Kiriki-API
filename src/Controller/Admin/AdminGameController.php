@@ -144,7 +144,7 @@ class AdminGameController extends AbstractController
         return new JsonResponse($result, 201);
     }
 
-    function patchGame(ManagerRegistry $doctrine, Request $request)
+    function putGame(ManagerRegistry $doctrine, Request $request)
     {
         if ($request->get('token') != $this->getParameter('app.API_KEY')) {
             return new JsonResponse(['error' => 'Invalid token'], 401);

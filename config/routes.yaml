@@ -36,10 +36,10 @@ admin_post_player:
   controller: App\Controller\Admin\AdminPlayerController::postPlayer
   methods: POST
 
-admin_patch_player:
+admin_put_player:
   path: /admin/players/{id}
-  controller: App\Controller\Admin\AdminPlayerController::patchPlayer
-  methods: PATCH
+  controller: App\Controller\Admin\AdminPlayerController::putPlayer
+  methods: PUT
 
 admin_delete_player:
   path: /admin/players/{id}
@@ -63,10 +63,10 @@ admin_post_game:
   controller: App\Controller\Admin\AdminGameController::postGame
   methods: POST
 
-admin_patch_game:
+admin_put_game:
   path: /admin/games/{id}
-  controller: App\Controller\Admin\AdminGameController::patchGame
-  methods: PATCH
+  controller: App\Controller\Admin\AdminGameController::putGame
+  methods: PUT
 
 admin_delete_game:
   path: /admin/games/{id}
@@ -85,12 +85,12 @@ api_register_player:
 api_login_player:
   path: /api/login
   controller: App\Controller\External\ExternalPlayerController::loginPlayer
-  methods: PATCH
+  methods: POST
 
 api_update_player:
   path: /api/player_settings
   controller: App\Controller\External\ExternalPlayerController::updatePlayer
-  methods: PATCH
+  methods: POST
 
 api_delete_player_account:
   path: /api/delete_account
@@ -105,24 +105,24 @@ api_create_game:
 api_login_game:
   path: /api/join_game
   controller: App\Controller\External\ExternalPlayerController::joinGame
-  methods: PATCH
+  methods: POST
 
 api_start_game:
   path: /api/start_game
   controller:  App\Controller\External\ExternalPlayerController::startGame
-  methods: PATCH
+  methods: POST
 
 # GAMES
 
 api_roll_dices:
   path: /api/roll_dices
   controller: App\Controller\External\ExternalGameController::rollDices
-  methods: PATCH
+  methods: POST
 
 api_set_bid:
   path: /api/make_bid
   controller: App\Controller\External\ExternalGameController::setBid
-  methods: PATCH
+  methods: POST
 
 api_get_last_bid:
   path: /api/get_bid
