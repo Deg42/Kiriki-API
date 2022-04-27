@@ -153,7 +153,7 @@ class AdminPlayerController extends AbstractController
         return new JsonResponse($result, 201);
     }
 
-    function patchPlayer(ManagerRegistry $doctrine, Request $request)
+    function putPlayer(ManagerRegistry $doctrine, Request $request)
     {
         if ($request->get('token') != $this->getParameter('app.API_KEY')) {
             return new JsonResponse(['error' => 'Invalid token'], 401);
