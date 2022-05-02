@@ -38,7 +38,8 @@ class AdminPlayerController extends AbstractController
         return new JsonResponse($results, 200);
     }
 
-    function getPlayer(ManagerRegistry $doctrine, Request $request){
+    function getPlayer(ManagerRegistry $doctrine, Request $request)
+    {
         if ($request->get('token') != $this->getParameter('app.API_KEY')) {
             return new JsonResponse(['error' => 'Invalid token'], 401);
         }
@@ -134,6 +135,18 @@ class AdminPlayerController extends AbstractController
         if ($playerByEmail) {
             return new JsonResponse(['error' => 'Email already exists'], 400);
         }
+        if (!preg_match('/^[a-zA-Z0-9]{3,20}$/', $username)) {
+            return new JsonResponse(['error' => 'Invalid username'], 400);
+        }
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-\.]+$/', $email)) {
+            return new JsonResponse(['error' => 'Invalid email'], 400);
+        }
+        if (!preg_match('/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$/', $password)) {
+            return new JsonResponse([
+                'error' => 'Invalid password',
+                'message' => 'password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter and one number'
+            ], 400);
+        }
 
         $player = new Player();
         $player->setUsername($username);
@@ -169,7 +182,7 @@ class AdminPlayerController extends AbstractController
 
         $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $newUsername]);
         $playerByEmail = $entityManager->getRepository(Player::class)->findOneBy(['email' => $newEmail]);
-        
+
         if (is_null($player)) {
             return new JsonResponse(['error' => 'Player not found for id ' . $id], 404);
         }
@@ -195,13 +208,25 @@ class AdminPlayerController extends AbstractController
             return new JsonResponse(['error' => 'No data to update'], 400);
         }
 
+        if ($newUsername && !preg_match('/^[a-zA-Z0-9]{3,20}$/', $newUsername)) {
+            return new JsonResponse(['error' => 'Invalid username'], 400);
+        }
+        if ($newEmail && !preg_match('/^[a-zA-Z0-9_\-\.]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-\.]+$/', $newEmail)) {
+            return new JsonResponse(['error' => 'Invalid email'], 400);
+        }
+        if ($newPassword && !preg_match('/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$/', $newPassword)) {
+            return new JsonResponse([
+                'error' => 'Invalid password',
+                'message' => 'password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter and one number'
+            ], 400);
+        }
+
         if ($newUsername) {
             $player->setUsername($newUsername);
         }
         if ($newEmail) {
             $player->setEmail($newEmail);
         }
-
         if ($newPassword) {
             $player->setPassword(password_hash($newPassword, PASSWORD_DEFAULT));
         }

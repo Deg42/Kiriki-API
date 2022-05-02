@@ -7,11 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: PlayerRepository::class)]
 
-class Player
+class Player implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -29,12 +30,6 @@ class Player
 
     #[ORM\Column(type: 'datetime')]
     private $reg_date;
-
-    #[ORM\Column(type: 'string', length: 180, nullable: true)]
-    private $session_token;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private $token_expiration;
 
     #[ORM\OneToMany(mappedBy: 'host', targetEntity: Game::class, orphanRemoval: true)]
     private $hosted_games;
@@ -101,30 +96,6 @@ class Player
     public function setRegDate(\DateTimeInterface $reg_date): self
     {
         $this->reg_date = $reg_date;
-
-        return $this;
-    }
-
-    public function getSessionToken(): ?string
-    {
-        return $this->session_token;
-    }
-    
-    public function setSessionToken(string $session_token): self
-    {
-        $this->session_token = $session_token;
-
-        return $this;
-    }
-
-    public function getTokenExpiration(): ?\DateTimeInterface
-    {
-        return $this->token_expiration;
-    }
-
-    public function setTokenExpiration(\DateTimeInterface $token_expiration): self
-    {
-        $this->token_expiration = $token_expiration;
 
         return $this;
     }
@@ -217,5 +188,20 @@ class Player
         }
 
         return $this;
+    }
+
+    public function getRoles(): array
+    {
+        return ['ROLE_USER'];
+    }
+
+    public function eraseCredentials()
+    {
+    }
+
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
     }
 }
