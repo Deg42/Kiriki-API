@@ -82,10 +82,8 @@ api_register_player:
   controller: App\Controller\External\ExternalPlayerController::registerPlayer
   methods: POST
 
-api_login_player:
-  path: /api/login
-  controller: App\Controller\External\ExternalPlayerController::loginPlayer
-  methods: POST
+api_login_check:
+  path: /api/login_check
 
 api_update_player:
   path: /api/player_settings
