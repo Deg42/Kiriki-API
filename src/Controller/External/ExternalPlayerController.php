@@ -42,8 +42,7 @@ class ExternalPlayerController extends AbstractController
         }
         if (!preg_match('/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$/', $password)) {
             return new JsonResponse([
-                'error' => 'Invalid password',
-                'message' => 'password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter and one number'
+                'error' => 'Password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter and one number'
             ], 400);
         }
 
@@ -58,7 +57,6 @@ class ExternalPlayerController extends AbstractController
 
         return new JsonResponse(['success' => 'Player created successfully'], 201);
     }
-
 
     function updatePlayer(ManagerRegistry $doctrine, Request $request)
     {
@@ -113,8 +111,7 @@ class ExternalPlayerController extends AbstractController
         }
         if ($newPassword && !preg_match('/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$/', $newPassword)) {
             return new JsonResponse([
-                'error' => 'Invalid password',
-                'message' => 'password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter and one number'
+                'error' => 'Password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter and one number'
             ], 400);
         }
 
@@ -242,8 +239,6 @@ class ExternalPlayerController extends AbstractController
             }
         }
 
-        // Si está en otra partida, no puede unirse a otra ?
-
         $playerInGame = new PlayerGame();
         $playerInGame->setPlayer($player);
         $playerInGame->setGame($game);
@@ -255,6 +250,38 @@ class ExternalPlayerController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(['success' => 'Player joined successfully'], 200);
+    }
+
+    function getPlayableGames(ManagerRegistry $doctrine, Request $request){
+        $entityManager = $doctrine->getManager();
+        $games = $entityManager->getRepository(Game::class)->findBy(['is_in_progress' => false, 'winner' => null]);
+
+        $results  = new \stdClass();
+        $results->count = count($games);
+        $results->results = array();
+
+        foreach ($games as $game) {
+            $result = new \stdClass();
+            $result->id = $game->getId();
+            $result->host = $game->getHost()->getUsername();
+            $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
+            $result->name = $game->getName();
+            $result->created_at = $game->getDate();
+
+            $result->players = new \stdClass();
+            $result->players->count = count($game->getPlayers() ?? []);
+            $result->players->results = array();
+
+            if ($game->getPlayers()) {
+                foreach ($game->getPlayers() as $playerInGame) {
+                    $result->players->results[] = $playerInGame->getPlayer()->getUsername();
+                }
+            }
+
+            array_push($results->results, $result);
+        }
+
+        return new JsonResponse($results, 200);
     }
 
     function startGame(ManagerRegistry $doctrine, Request $request)
