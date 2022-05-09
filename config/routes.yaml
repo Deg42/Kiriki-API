@@ -100,10 +100,15 @@ api_create_game:
   controller: App\Controller\External\ExternalPlayerController::createGame
   methods: POST
 
-api_login_game:
+api_join_game:
   path: /api/join_game
   controller: App\Controller\External\ExternalPlayerController::joinGame
   methods: POST
+
+api_get_playable_games:
+  path: /api/playable_games
+  controller: App\Controller\External\ExternalPlayerController::getPlayableGames
+  methods: GET
 
 api_start_game:
   path: /api/start_game

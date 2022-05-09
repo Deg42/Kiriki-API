@@ -58,7 +58,7 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'No bids yet or its the first turn'], 400);
         }
 
-        return new JsonResponse(['bid1' => $previousBid1, 'bid2' => $previousBid2, 'value' => $this->calculateRollValues($previousBid1, $previousBid2)], 200);
+        return new JsonResponse(['player' => $previousPlayerInGame->getPlayer()->getId(), 'bid1' => $previousBid1, 'bid2' => $previousBid2, 'value' => $this->calculateRollValues($previousBid1, $previousBid2)], 200);
     }
 
     public function getLastRoll(ManagerRegistry $doctrine, Request $request)
@@ -282,7 +282,7 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'Bid not set'], 400);
         }
 
-        if ($actualBid[0] > 6  || $actualBid[1] > 6 || $actualBid[0] < 1 || $actualBid[1] < 1) {
+        if ($actualBid[0] > 6  || $actualBid[1] > 6 || $actualBid[0] < 1 || $actualBid[1] < 1 || $actualBid[3] == 'kiriki') {
             return new JsonResponse(['error' => 'Bid not valid'], 400);
         }
 
