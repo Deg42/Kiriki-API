@@ -282,8 +282,8 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'Bid not set'], 400);
         }
 
-        if ($actualBid[0] > 6  || $actualBid[1] > 6 || $actualBid[0] < 1 || $actualBid[1] < 1 || $actualBid[3] == 'kiriki') {
-            return new JsonResponse(['error' => 'Bid not valid'], 400);
+        if ($actualBid[0] > 6  || $actualBid[1] > 6 || $actualBid[0] < 1 || $actualBid[1] < 1 || $actualBid[2] == 'kiriki') {
+            return new JsonResponse(['error' => 'Not a valid bid'], 400);
         }
 
         if (!$game->getIsInProgress()) {
