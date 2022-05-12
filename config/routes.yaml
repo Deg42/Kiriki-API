@@ -110,6 +110,11 @@ api_get_playable_games:
   controller: App\Controller\External\ExternalPlayerController::getPlayableGames
   methods: GET
 
+api_get_started_games:
+  path: /api/started_games/{player_name}
+  controller: App\Controller\External\ExternalPlayerController::getStartedGames
+  methods: GET
+
 api_start_game:
   path: /api/start_game
   controller:  App\Controller\External\ExternalPlayerController::startGame

@@ -178,6 +178,18 @@ class ExternalPlayerController extends AbstractController
             return new JsonResponse(['error' => 'There is already a game with that name'], 409);
         }
 
+        if (!preg_match('/^[a-zA-Z0-9]{3,20}$/', $gameName)) {
+            return new JsonResponse(['error' => 'Invalid game name'], 400);
+        }
+
+        if (!preg_match('/^\S{0,10}$/', $gamePass)) {
+            return new JsonResponse(['error' => 'Invalid game password'], 400);
+        }
+
+        if (!is_numeric($maxPoints) || $maxPoints < 3 || $maxPoints > 9) {
+            return new JsonResponse(['error' => 'Invalid max points'], 400);
+        }
+
         foreach ($host->getHostedGames() as $game) {
             if ($game->getIsInProgress() || (!$game->getIsInProgress() && is_null($game->getWinner()))) {
                 return new JsonResponse(['error' => 'You are already hosting a game'], 409);
@@ -227,6 +239,10 @@ class ExternalPlayerController extends AbstractController
 
         if (is_null($gamePass) || !password_verify($gamePass, $game->getPassword())) {
             return new JsonResponse(['error' => 'Wrong password'], 401);
+        }
+
+        if (count($game->getPlayers()) >= 4) {
+            return new JsonResponse(['error' => 'Game is full'], 409);
         }
 
         if ($game->getIsInProgress()) {
@@ -282,6 +298,61 @@ class ExternalPlayerController extends AbstractController
         }
 
         return new JsonResponse($results, 200);
+    }
+
+    function getStartedGames(ManagerRegistry $doctrine, Request $request){
+        $entityManager = $doctrine->getManager();
+
+        $playerName = $request->get('player_name');
+
+        $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerName]);
+
+        if (!$playerByUser) {
+            return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
+        $playerInGame = $entityManager->getRepository(PlayerGame::class)->findBy(['player' => $playerByUser]);
+
+        if (!$playerInGame) {
+            return new JsonResponse(['error' => 'No games found'], 404);
+        }
+
+        $games = array();
+        
+        foreach ($playerInGame as $gameByPlayer) {
+            if ($gameByPlayer->getGame()->getIsInProgress() && $gameByPlayer->getGame()->getWinner() == null) {
+                array_push($games, $gameByPlayer->getGame());
+            }
+        }        
+
+        $results  = new \stdClass();
+        $results->count = count($games);
+        $results->results = array();
+
+        foreach ($games as $game) {
+            $result = new \stdClass();
+            $result->id = $game->getId();
+            $result->host = $game->getHost()->getUsername();
+            $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
+            $result->name = $game->getName();
+            $result->created_at = $game->getDate();
+
+            $result->players = new \stdClass();
+            $result->players->count = count($game->getPlayers() ?? []);
+            $result->players->results = array();
+
+            if ($game->getPlayers()) {
+                foreach ($game->getPlayers() as $playerInGame) {
+                    $result->players->results[] = $playerInGame->getPlayer()->getUsername();
+                }
+            }
+
+            array_push($results->results, $result);
+        }
+
+        return new JsonResponse($results, 200);
+
+        
     }
 
     function startGame(ManagerRegistry $doctrine, Request $request)
