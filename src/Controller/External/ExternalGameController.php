@@ -17,11 +17,11 @@ class ExternalGameController extends AbstractController
 
     public function getLastBid(ManagerRegistry $doctrine, Request $request)
     {
-        $playerId = $request->get('player_id');
+        $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
 
         $entityManager = $doctrine->getManager();
-        $player = $entityManager->getRepository(Player::class)->find($playerId);
+        $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
 
         if (is_null($game)) {
@@ -58,16 +58,16 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'No bids yet or its the first turn'], 400);
         }
 
-        return new JsonResponse(['player' => $previousPlayerInGame->getPlayer()->getId(), 'bid1' => $previousBid1, 'bid2' => $previousBid2, 'value' => $this->calculateRollValues($previousBid1, $previousBid2)], 200);
+        return new JsonResponse(['player' => $previousPlayerInGame->getPlayer()->getUsername(), 'bid1' => $previousBid1, 'bid2' => $previousBid2, 'value' => $this->calculateRollValues($previousBid1, $previousBid2)], 200);
     }
 
     public function getLastRoll(ManagerRegistry $doctrine, Request $request)
     {
-        $playerId = $request->get('player_id');
+        $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
 
         $entityManager = $doctrine->getManager();
-        $player = $entityManager->getRepository(Player::class)->find($playerId);
+        $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
 
         if (is_null($game)) {
@@ -148,11 +148,11 @@ class ExternalGameController extends AbstractController
 
     public function rollDices(ManagerRegistry $doctrine, Request $request)
     {
-        $playerId = $request->get('player_id');
+        $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
 
         $entityManager = $doctrine->getManager();
-        $player = $entityManager->getRepository(Player::class)->find($playerId);
+        $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
 
         if (is_null($game)) {
@@ -235,7 +235,7 @@ class ExternalGameController extends AbstractController
 
     public function setBid(ManagerRegistry $doctrine, Request $request)
     {
-        $playerId = $request->get('player_id');
+        $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
         $actualBid = [];
         array_push(
@@ -246,7 +246,7 @@ class ExternalGameController extends AbstractController
         );
 
         $entityManager = $doctrine->getManager();
-        $player = $entityManager->getRepository(Player::class)->find($playerId);
+        $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
 
         if (is_null($game)) {
