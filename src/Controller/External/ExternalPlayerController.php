@@ -222,12 +222,12 @@ class ExternalPlayerController extends AbstractController
     function joinGame(ManagerRegistry $doctrine, Request $request)
     {
         $playerName = $request->get('player_name');
-        $gameName = $request->get('game_name');
+        $gameId = $request->get('game_id');
         $gamePass = $request->get('game_pass');
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerName]);
-        $game = $entityManager->getRepository(Game::class)->findOneBy(['name' => $gameName]);
+        $game = $entityManager->getRepository(Game::class)->find($gameId);
 
         if (is_null($game)) {
             return new JsonResponse(['error' => 'Game not found'], 404);
@@ -333,6 +333,9 @@ class ExternalPlayerController extends AbstractController
             $result = new \stdClass();
             $result->id = $game->getId();
             $result->host = $game->getHost()->getUsername();
+            $result->turn = $game->getPlayers()->filter(function($player) {
+                return $player->getIsTurn();
+            })->first()->getPlayer()->getUsername();
             $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
             $result->name = $game->getName();
             $result->created_at = $game->getDate();
@@ -358,11 +361,11 @@ class ExternalPlayerController extends AbstractController
     function startGame(ManagerRegistry $doctrine, Request $request)
     {
         $hostName = $request->get('host_name');
-        $gameName = $request->get('game_name');
+        $gameId = $request->get('game_id');
 
         $entityManager = $doctrine->getManager();
         $host = $entityManager->getRepository(Player::class)->findOneBy(['username' => $hostName]);
-        $game = $entityManager->getRepository(Game::class)->findOneBy(['name' => $gameName]);
+        $game = $entityManager->getRepository(Game::class)->find($gameId);
 
         if (is_null($game)) {
             return new JsonResponse(['error' => 'Game not found'], 404);
