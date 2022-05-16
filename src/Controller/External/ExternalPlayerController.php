@@ -268,7 +268,8 @@ class ExternalPlayerController extends AbstractController
         return new JsonResponse(['success' => 'Player joined successfully'], 200);
     }
 
-    function getPlayableGames(ManagerRegistry $doctrine, Request $request){
+    function getPlayableGames(ManagerRegistry $doctrine)
+    {
         $entityManager = $doctrine->getManager();
         $games = $entityManager->getRepository(Game::class)->findBy(['is_in_progress' => false, 'winner' => null]);
 
@@ -300,7 +301,8 @@ class ExternalPlayerController extends AbstractController
         return new JsonResponse($results, 200);
     }
 
-    function getStartedGames(ManagerRegistry $doctrine, Request $request){
+    function getStartedGames(ManagerRegistry $doctrine, Request $request)
+    {
         $entityManager = $doctrine->getManager();
 
         $playerName = $request->get('player_name');
@@ -318,12 +320,12 @@ class ExternalPlayerController extends AbstractController
         }
 
         $games = array();
-        
+
         foreach ($playerInGame as $gameByPlayer) {
             if ($gameByPlayer->getGame()->getIsInProgress() && $gameByPlayer->getGame()->getWinner() == null) {
                 array_push($games, $gameByPlayer->getGame());
             }
-        }        
+        }
 
         $results  = new \stdClass();
         $results->count = count($games);
@@ -333,7 +335,7 @@ class ExternalPlayerController extends AbstractController
             $result = new \stdClass();
             $result->id = $game->getId();
             $result->host = $game->getHost()->getUsername();
-            $result->turn = $game->getPlayers()->filter(function($player) {
+            $result->turn = $game->getPlayers()->filter(function ($player) {
                 return $player->getIsTurn();
             })->first()->getPlayer()->getUsername();
             $result->winner = $game->getWinner() ? $game->getWinner()->getUsername() : null;
@@ -354,8 +356,6 @@ class ExternalPlayerController extends AbstractController
         }
 
         return new JsonResponse($results, 200);
-
-        
     }
 
     function startGame(ManagerRegistry $doctrine, Request $request)
@@ -399,5 +399,58 @@ class ExternalPlayerController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(['success' => 'Game started successfully'], 200);
+    }
+
+    function getGame(ManagerRegistry $doctrine, Request $request)
+    {
+        $playerUsername = $request->get('player_name');
+        $gameId = $request->get('game_id');
+
+        $entityManager = $doctrine->getManager();
+        $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
+        $game = $entityManager->getRepository(Game::class)->find($gameId);
+
+        if (is_null($game)) {
+            return new JsonResponse(['error' => 'Game not found'], 404);
+        }
+
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
+        $playerInGame = $entityManager->getRepository(PlayerGame::class)->findOneBy(['player' => $player, 'game' => $game]);
+
+        if (is_null($playerInGame)) {
+            return new JsonResponse(['error' => 'Player not in game'], 400);
+        }
+
+        if (!$game->getIsInProgress()) {
+            return new JsonResponse(['error' => 'Game is not in progress'], 400);
+        }
+
+        if ($game->getWinner()) {
+            return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
+        }
+
+        $gameResult = new \stdClass();
+        $gameResult->id = $game->getId();
+        $gameResult->host = $game->getHost()->getUsername();
+        $gameResult->turn = $game->getPlayers()->filter(function ($player) {
+            return $player->getIsTurn();
+        })->first()->getPlayer()->getUsername();
+        $gameResult->name = $game->getName();
+        $gameResult->created_at = $game->getDate();
+
+        $gameResult->players = new \stdClass();
+        $gameResult->players->count = count($game->getPlayers() ?? []);
+        $gameResult->players->results = array();
+
+        if ($game->getPlayers()) {
+            foreach ($game->getPlayers() as $playerInGame) {
+                $gameResult->players->results[] = $playerInGame->getPlayer()->getUsername();
+            }
+        }
+
+        return new JsonResponse($gameResult, 200);
     }
 }

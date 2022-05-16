@@ -50,10 +50,6 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
         }
 
-        if (!$playerInGame->getIsTurn()) {
-            return new JsonResponse(['error' => 'It is not your turn'], 400);
-        }
-
         if (is_null($previousBid1) && is_null($previousBid2)) {
             return new JsonResponse(['error' => 'No bids yet or its the first turn'], 400);
         }

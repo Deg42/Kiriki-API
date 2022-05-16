@@ -120,6 +120,12 @@ api_start_game:
   controller:  App\Controller\External\ExternalPlayerController::startGame
   methods: POST
 
+api_get_game:
+  path: /api/game
+  controller:  App\Controller\External\ExternalPlayerController::getGame
+  methods: GET
+  
+
 # GAMES
 
 api_roll_dices:
