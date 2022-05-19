@@ -363,6 +363,10 @@ class ExternalPlayerController extends AbstractController
         $hostName = $request->get('host_name');
         $gameId = $request->get('game_id');
 
+        if (!$gameId || !$hostName) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
+
         $entityManager = $doctrine->getManager();
         $host = $entityManager->getRepository(Player::class)->findOneBy(['username' => $hostName]);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
@@ -405,6 +409,10 @@ class ExternalPlayerController extends AbstractController
     {
         $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
+
+        if (!$gameId || !$playerUsername) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
@@ -449,6 +457,18 @@ class ExternalPlayerController extends AbstractController
             foreach ($game->getPlayers() as $playerInGame) {
                 $gameResult->players->results[] = $playerInGame->getPlayer()->getUsername();
             }
+
+            $gameResult->players->results = array_map(function ($player) use ($game) {
+                $playerInGame = $game->getPlayers()->filter(function ($playerInGame) use ($player) {
+                    return $playerInGame->getPlayer()->getUsername() == $player;
+                })->first();
+
+                $playerResult = new \stdClass();
+                $playerResult->username = $player;
+                $playerResult->points = $playerInGame->getPoints();
+
+                return $playerResult;
+            }, $gameResult->players->results);
         }
 
         return new JsonResponse($gameResult, 200);

@@ -20,6 +20,10 @@ class ExternalGameController extends AbstractController
         $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
 
+        if (!$gameId || !$playerUsername) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
+
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
         $game = $entityManager->getRepository(Game::class)->find($gameId);
@@ -61,6 +65,10 @@ class ExternalGameController extends AbstractController
     {
         $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
+
+        if (!$gameId || !$playerUsername) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
@@ -120,7 +128,7 @@ class ExternalGameController extends AbstractController
 
         $entityManager->persist($playerInGame);
         $entityManager->flush();
-        
+
         if ($this->checkIfWinner($game)) {
             $this->finishGame($game);
             $this->finishGame($game);
@@ -146,6 +154,10 @@ class ExternalGameController extends AbstractController
     {
         $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
+
+        if (!$gameId || !$playerUsername) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
 
         $entityManager = $doctrine->getManager();
         $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
@@ -229,10 +241,68 @@ class ExternalGameController extends AbstractController
         }
     }
 
+    public function getOwnRoll(ManagerRegistry $doctrine, Request $request)
+    {
+        $playerUsername = $request->get('player_name');
+        $gameId = $request->get('game_id');
+
+        if (!$gameId || !$playerUsername) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
+
+        $entityManager = $doctrine->getManager();
+        $player = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerUsername]);
+        $game = $entityManager->getRepository(Game::class)->find($gameId);
+
+        if (is_null($game)) {
+            return new JsonResponse(['error' => 'Game not found'], 404);
+        }
+
+        if (is_null($player)) {
+            return new JsonResponse(['error' => 'Player not found'], 404);
+        }
+
+        $playerInGame = $entityManager->getRepository(PlayerGame::class)->findOneBy(['player' => $player, 'game' => $game]);
+
+
+
+        if (is_null($playerInGame)) {
+            return new JsonResponse(['error' => 'Player not in game'], 400);
+        }
+
+        if (!$game->getIsInProgress()) {
+            return new JsonResponse(['error' => 'Game is not in progress'], 400);
+        }
+
+        if ($game->getWinner()) {
+            return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
+        }
+
+        if (!$playerInGame->getIsTurn()) {
+            return new JsonResponse(['error' => 'It is not your turn'], 400);
+        }
+
+        $roll[0] = $playerInGame->getRoll1();
+        $roll[1] = $playerInGame->getRoll2();
+        $roll[2] = $this->calculateRollValues($roll[0], $roll[1]);
+
+
+        if (is_null($roll[0]) && is_null($roll[1])) {
+            return new JsonResponse(['error' => 'You have not rolled yet'], 400);
+        }
+
+        return new JsonResponse(['roll_1' => $roll[0], 'roll_2' => $roll[1], 'roll_value' => $roll[2]], 200);
+    }
+
     public function setBid(ManagerRegistry $doctrine, Request $request)
     {
         $playerUsername = $request->get('player_name');
         $gameId = $request->get('game_id');
+
+        if (!$gameId || !$playerUsername) {
+            return new JsonResponse(['error' => 'Missing parameters'], 400);
+        }
+
         $actualBid = [];
         array_push(
             $actualBid,

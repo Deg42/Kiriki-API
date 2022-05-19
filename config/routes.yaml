@@ -133,6 +133,11 @@ api_roll_dices:
   controller: App\Controller\External\ExternalGameController::rollDices
   methods: POST
 
+api_get_own_roll:
+  path: /api/get_own_roll
+  controller: App\Controller\External\ExternalGameController::getOwnRoll
+  methods: GET
+
 api_set_bid:
   path: /api/make_bid
   controller: App\Controller\External\ExternalGameController::setBid
@@ -144,6 +149,6 @@ api_get_last_bid:
   methods: GET
 
 api_get_last_roll:
-  path: /api/get_roll
+  path: /api/get_last_roll
   controller: App\Controller\External\ExternalGameController::getLastRoll
   methods: GET
