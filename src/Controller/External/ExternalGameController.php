@@ -58,7 +58,7 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(['error' => 'No bids yet or its the first turn'], 400);
         }
 
-        return new JsonResponse(['player' => $previousPlayerInGame->getPlayer()->getUsername(), 'bid1' => $previousBid1, 'bid2' => $previousBid2, 'value' => $this->calculateRollValues($previousBid1, $previousBid2)], 200);
+        return new JsonResponse(['player' => $previousPlayerInGame->getPlayer()->getUsername(), 'bid_1' => $previousBid1, 'bid_2' => $previousBid2, 'bid_value' => $this->calculateRollValues($previousBid1, $previousBid2)], 200);
     }
 
     public function getLastRoll(ManagerRegistry $doctrine, Request $request)
@@ -195,8 +195,8 @@ class ExternalGameController extends AbstractController
             return new JsonResponse(
                 [
                     'error' => 'You already rolled, make a bid',
-                    'dice1' => $playerInGame->getRoll1(),
-                    'dice2' => $playerInGame->getRoll2(),
+                    'roll_1' => $playerInGame->getRoll1(),
+                    'roll_2' => $playerInGame->getRoll2(),
                     'roll_value' => $this->calculateRollValues($playerInGame->getRoll1(), $playerInGame->getRoll2())
                 ],
                 400
@@ -237,7 +237,7 @@ class ExternalGameController extends AbstractController
             $entityManager->flush();
             return new JsonResponse(['success' => 'Game finished', 'winner' => $game->getWinner()], 200);
         } else {
-            return new JsonResponse(['roll1' => $roll[0], 'roll2' => $roll[1], 'value' => $roll[2]], 200);
+            return new JsonResponse(['roll_1' => $roll[0], 'roll_2' => $roll[1], 'roll_value' => $roll[2]], 200);
         }
     }
 
