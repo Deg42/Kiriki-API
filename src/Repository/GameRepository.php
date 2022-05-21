@@ -45,6 +45,19 @@ class GameRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @return Game[] Returns an array of Game objects
+     */
+    public function findAllWinnerNotNull()
+    {
+        return $this->createQueryBuilder('g')
+            ->andWhere('g.winner IS NOT NULL')
+            ->orderBy('g.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return Game[] Returns an array of Game objects
     //  */

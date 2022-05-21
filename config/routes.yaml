@@ -115,6 +115,11 @@ api_get_started_games:
   controller: App\Controller\External\ExternalPlayerController::getStartedGames
   methods: GET
 
+api_get_finished_games:
+  path: /api/finished_games
+  controller: App\Controller\External\ExternalPlayerController::getFinishedGames
+  methods: GET
+
 api_start_game:
   path: /api/start_game
   controller:  App\Controller\External\ExternalPlayerController::startGame

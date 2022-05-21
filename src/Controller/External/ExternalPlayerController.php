@@ -348,7 +348,46 @@ class ExternalPlayerController extends AbstractController
 
             if ($game->getPlayers()) {
                 foreach ($game->getPlayers() as $playerInGame) {
-                    $result->players->results[] = $playerInGame->getPlayer()->getUsername();
+                    $result->players->results[] = [
+                        'name' => $playerInGame->getPlayer()->getUsername(),
+                        'points' => $playerInGame->getPoints(),
+                    ];
+                }
+            }
+
+            array_push($results->results, $result);
+        }
+
+        return new JsonResponse($results, 200);
+    }
+
+    function getFinishedGames(ManagerRegistry $doctrine){
+        $entityManager = $doctrine->getManager();
+
+        $games = $entityManager->getRepository(Game::class)->findAllWinnerNotNull();
+
+        $results  = new \stdClass();
+        $results->count = count($games);
+        $results->results = array();
+
+        foreach ($games as $game) {
+            $result = new \stdClass();
+            $result->id = $game->getId();
+            $result->host = $game->getHost()->getUsername();
+            $result->winner = $game->getWinner()->getUsername();
+            $result->name = $game->getName();
+            $result->created_at = $game->getDate();
+
+            $result->players = new \stdClass();
+            $result->players->count = count($game->getPlayers() ?? []);
+            $result->players->results = array();
+
+            if ($game->getPlayers()) {
+                foreach ($game->getPlayers() as $playerInGame) {
+                    $result->players->results[] = [
+                        'name' => $playerInGame->getPlayer()->getUsername(),
+                        'points' => $playerInGame->getPoints(),
+                    ];
                 }
             }
 
@@ -473,4 +512,5 @@ class ExternalPlayerController extends AbstractController
 
         return new JsonResponse($gameResult, 200);
     }
+
 }
