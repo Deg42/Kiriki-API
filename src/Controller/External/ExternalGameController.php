@@ -121,11 +121,11 @@ class ExternalGameController extends AbstractController
             $pointLoser = $player->getUsername();
         } else {
             $this->removePoint($previousPlayerInGame);
-            $this->deleteTurnInfo($previousPlayerInGame);
-            $entityManager->persist($previousPlayerInGame);
             $pointLoser = $previousPlayerInGame->getPlayer()->getUsername();
         }
-
+        
+        $this->deleteTurnInfo($previousPlayerInGame);
+        $entityManager->persist($previousPlayerInGame);
         $entityManager->persist($playerInGame);
         $entityManager->flush();
 
@@ -221,9 +221,9 @@ class ExternalGameController extends AbstractController
             $entityManager->flush();
 
             return new JsonResponse([
-                'roll1' => $roll[0],
-                'roll2' => $roll[1],
-                'value' => $roll[2],
+                'roll_1' => $roll[0],
+                'roll_2' => $roll[1],
+                'roll_value' => $roll[2],
                 'point_loser' => $nextPlayerInGame->getPlayer()->getUsername()
             ], 200);
         }
