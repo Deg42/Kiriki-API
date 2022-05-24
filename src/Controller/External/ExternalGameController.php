@@ -13,7 +13,7 @@ use App\Entity\PlayerGame;
 class ExternalGameController extends AbstractController
 {
 
-    const SECUENCE = ['4', '5', '6', '7', '8', '9', '10', 'tocho', 'blacks', 'reds', 'jacks', 'queens', 'kings', 'snake eyes', 'kiriki'];
+    const SECUENCE = ['4', '5', '6', '7', '8', '9', '10', 'tocho', 'negras', 'rojas', 'jotas', 'reinas', 'reyes', 'ases', 'kiriki'];
 
     public function getLastBid(ManagerRegistry $doctrine, Request $request)
     {

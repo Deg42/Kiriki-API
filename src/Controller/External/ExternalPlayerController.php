@@ -361,10 +361,40 @@ class ExternalPlayerController extends AbstractController
         return new JsonResponse($results, 200);
     }
 
-    function getFinishedGames(ManagerRegistry $doctrine){
+    function getFinishedGames(ManagerRegistry $doctrine, Request $request){
         $entityManager = $doctrine->getManager();
 
+        $playerName = $request->get('player_name');
+
         $games = $entityManager->getRepository(Game::class)->findAllWinnerNotNull();
+        
+        if ($playerName) {
+            $playerByUser = $entityManager->getRepository(Player::class)->findOneBy(['username' => $playerName]);
+
+            if (!$playerByUser) {
+                return new JsonResponse(['error' => 'Player not found'], 404);
+            }
+
+            $playerInGame = $entityManager->getRepository(PlayerGame::class)->findBy(['player' => $playerByUser]);
+
+            // filter games where playerGame is in
+            foreach ($games as $key => $game) {
+                $isInGame = false;
+                foreach ($game->getPlayers() as $playerInGame) {
+                    if ($playerInGame->getPlayer()->getId() == $playerByUser->getId()) {
+                        $isInGame = true;
+                    }
+                }
+                if (!$isInGame) {
+                    unset($games[$key]);
+                }
+            }
+            
+        }
+
+        if (!$games) {
+            return new JsonResponse(['error' => 'No games found'], 404);
+        }
 
         $results  = new \stdClass();
         $results->count = count($games);
