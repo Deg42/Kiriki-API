@@ -501,17 +501,14 @@ class ExternalPlayerController extends AbstractController
             return new JsonResponse(['error' => 'Player not in game'], 400);
         }
 
-        if (!$game->getIsInProgress()) {
-            return new JsonResponse(['error' => 'Game is not in progress'], 400);
-        }
-
-        if ($game->getWinner()) {
-            return new JsonResponse(['error' => 'Game is already finished', 'winner' => $game->getWinner()->getUsername()], 400);
-        }
-
         $gameResult = new \stdClass();
         $gameResult->id = $game->getId();
         $gameResult->host = $game->getHost()->getUsername();
+        if ($game->getWinner()) {
+            $gameResult->winner = $game->getWinner()->getUsername();
+        } else {
+            $gameResult->winner = null;
+        }
         $gameResult->turn = $game->getPlayers()->filter(function ($player) {
             return $player->getIsTurn();
         })->first()->getPlayer()->getUsername();
