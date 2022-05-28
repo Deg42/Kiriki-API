@@ -1,0 +1,993 @@
+{
+	"info": {
+		"_postman_id": "2e4b08e7-ee91-47d5-a888-eeb93cb2c91c",
+		"name": "Kiriki",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18837507"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Players",
+					"item": [
+						{
+							"name": "GetPlayers",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/admin/players/?token=kirikikey",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players",
+										""
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "kirikikey"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetPlayer",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/admin/players/1?token=kirikikey",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players",
+										"1"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "kirikikey"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetPlayerGames",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/admin/players/1/games?token=kirikikey",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players",
+										"1",
+										"games"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "kirikikey"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PostPlayer",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "token",
+											"value": "kirikikey",
+											"type": "default"
+										},
+										{
+											"key": "username",
+											"value": "user",
+											"type": "default"
+										},
+										{
+											"key": "email",
+											"value": "user@email.com",
+											"type": "default"
+										},
+										{
+											"key": "password",
+											"value": "Pass1111",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL}}/admin/players",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PutPlayerUsername",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "kirikikey",
+											"type": "default"
+										},
+										{
+											"key": "new_username",
+											"value": "user1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL}}/admin/players/1",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PutPlayerEmail",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "kirikikey",
+											"type": "default"
+										},
+										{
+											"key": "new_email",
+											"value": "user1@email.com",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL}}/admin/players/1",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PutPlayerPassword",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "kirikikey",
+											"type": "default"
+										},
+										{
+											"key": "new_password",
+											"value": "Pass11111",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL}}/admin/players/1",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DeleteUser",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "kirikikey",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL}}/admin/players/6",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"players",
+										"6"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Games",
+					"item": [
+						{
+							"name": "GetGames",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/admin/games/?token=kirikikey",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"games",
+										""
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "kirikikey"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetGame",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/admin/games/1?token=kirikikey",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"games",
+										"1"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "kirikikey"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PostGame",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "token",
+											"value": "kirikikey",
+											"type": "text"
+										},
+										{
+											"key": "name",
+											"value": "Game",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "pass",
+											"type": "text"
+										},
+										{
+											"key": "host_id",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL}}/admin/games",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"games"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PutGame",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "kirikikey",
+											"type": "text"
+										},
+										{
+											"key": "new_name",
+											"value": "Game1",
+											"type": "text"
+										},
+										{
+											"key": "new_password",
+											"value": "pass",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL}}/admin/games/1",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"games",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DeleteGame",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/admin/games/12?token=kirikikey",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"admin",
+										"games",
+										"12"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "kirikikey"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "External",
+			"item": [
+				{
+					"name": "RegisterPlayer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "user3",
+									"type": "default"
+								},
+								{
+									"key": "email",
+									"value": "user3@email.com",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "Pass11111",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/register",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginPlayer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "user3",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "Pass11111",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/login_check",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"login_check"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdatePlayer",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/api/player_settings",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"player_settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeletePlayerAccount",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "pass",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/delete_account",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"delete_account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateGame",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2NTE1Mjk1NDYsImV4cCI6MTY1MTUzMzE0Niwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidXNlcjEifQ.QTjFGm7nqzED8wMMQya4gNm1GipwYPxXsuMifTeFvAQ1ykaMTdOTxEjT3tT9ulnVBxw9dmCuN6W8Pq7rOHM_rEcEw7rVJHCg6bUVCGPGNb4U5bKNPYMjfN2QuMUuJTZX9HGZz4EMKFJMAaFwx-Tg7b04lI_hiuRLAg5OnaVXDKXN0jfyJ6y-9D-CefUyZ4gDJZxd7U7zRTj2OFSC-UhWSleQs9iR2q4eBuEBKtbDW_OsEw246PWIGtKqII_OYiZPFSNVrJZ-KPdwC1QRK2aK_28cKId4XTvIxazqIAUQ7zKuYzGrKOr7SbYmdUbB_Ppzf2jOhPrfOob51sVwdrxipA",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "host_name",
+									"value": "usuario1",
+									"type": "text"
+								},
+								{
+									"key": "game_name",
+									"value": "JuegoDeUsu1",
+									"type": "text"
+								},
+								{
+									"key": "game_password",
+									"value": "gamePass",
+									"type": "text"
+								},
+								{
+									"key": "max_points",
+									"value": "3",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/create_game",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"create_game"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JoinGame",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2NTE1Mjk1NDYsImV4cCI6MTY1MTUzMzE0Niwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidXNlcjEifQ.QTjFGm7nqzED8wMMQya4gNm1GipwYPxXsuMifTeFvAQ1ykaMTdOTxEjT3tT9ulnVBxw9dmCuN6W8Pq7rOHM_rEcEw7rVJHCg6bUVCGPGNb4U5bKNPYMjfN2QuMUuJTZX9HGZz4EMKFJMAaFwx-Tg7b04lI_hiuRLAg5OnaVXDKXN0jfyJ6y-9D-CefUyZ4gDJZxd7U7zRTj2OFSC-UhWSleQs9iR2q4eBuEBKtbDW_OsEw246PWIGtKqII_OYiZPFSNVrJZ-KPdwC1QRK2aK_28cKId4XTvIxazqIAUQ7zKuYzGrKOr7SbYmdUbB_Ppzf2jOhPrfOob51sVwdrxipA",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "player_name",
+									"value": "Haxe",
+									"type": "text"
+								},
+								{
+									"key": "game_name",
+									"value": "JuegoDeUsu1",
+									"type": "text"
+								},
+								{
+									"key": "game_pass",
+									"value": "gamePass",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/join_game",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"join_game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "StartGame",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "host_name",
+									"value": "usuario1",
+									"type": "text"
+								},
+								{
+									"key": "game_name",
+									"value": "JuegoDeUsu1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/start_game",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"start_game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RollDices",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/roll_dices",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"roll_dices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MakeBid",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "player_name",
+									"value": "user2",
+									"type": "text"
+								},
+								{
+									"key": "game_id",
+									"value": "11",
+									"type": "text"
+								},
+								{
+									"key": "bid_1",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "bid_2",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/api/make_bid",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"make_bid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetLastBid",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/get_bid",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"get_bid"
+							],
+							"query": [
+								{
+									"key": "player_name",
+									"value": "user1",
+									"disabled": true
+								},
+								{
+									"key": "game_id",
+									"value": "11",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetLastRoll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/get_roll?player_name=user1&game_id=11",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"get_roll"
+							],
+							"query": [
+								{
+									"key": "player_name",
+									"value": "user1"
+								},
+								{
+									"key": "game_id",
+									"value": "11"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetPlayableGames",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/playable_games",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"playable_games"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetStartedGames",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/started_games/user1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"started_games",
+								"user1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetFinishedGames",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/finished_games",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"finished_games"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetGame",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{URL}}/api/game?player_name=user3&game_id=6",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"game"
+							],
+							"query": [
+								{
+									"key": "player_name",
+									"value": "user3"
+								},
+								{
+									"key": "game_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetOwnRoll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/get_own_roll?player_name=user3&game_id=2",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"get_own_roll"
+							],
+							"query": [
+								{
+									"key": "player_name",
+									"value": "user3"
+								},
+								{
+									"key": "game_id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2NTM0MTQ3NjcsImV4cCI6MTY1MzQxODM2Nywicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidXNlcjMifQ.4b2kCTNOMfgwhKe8b7c5yY41X6Plpfozejep0BaeNvIPdrHxe5ge4WQcn07wOUcOVMAN9qKR1NoXf_HrUk0IKwyjLYMK3F7dQkrIQNlVXPX7x1FXD_UVYUOWBKSNAwQra22FuiEfClJ9M5DivyH7ccMNFiFrTjtx9l7HbDHM0C6RDVBNc1QI2EGtYS2Aq5pWcvy9XWZOBkRhIkCfGhtnR0MLNU_3GCHDuPfb9pRr2XYdE4KnHioDWEFhM-Gnm90geyHhiYKmlO1E09-7OIYhpRlZqvktub-Abag9LmrlZU2J-2--OwWyQABaXJRcbZkODMqp3GvBgh3YZCzvu2pF3Q",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": "localhost:8000",
+			"type": "default"
+		}
+	]
+}
