@@ -216,6 +216,8 @@ class ExternalGameController extends AbstractController
             $playerInGame->setBid2(null);
             $nextPlayerInGame->setPoints($nextPlayerInGame->getPoints() - 1);
             $nextPlayerInGame->setIsTurn(true);
+            $nextPlayerInGame->setRoll1(null);
+            $nextPlayerInGame->setRoll2(null);
             $entityManager->persist($nextPlayerInGame);
             $entityManager->persist($playerInGame);
             $entityManager->flush();
